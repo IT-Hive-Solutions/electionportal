@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-icon.png',
   },
+  other: {
+    'google-adsense-account': `${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`,
+  },
 };
 
 export default function RootLayout({
