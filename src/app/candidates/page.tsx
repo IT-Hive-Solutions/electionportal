@@ -32,7 +32,6 @@ import {
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdBanner from '@/components/AdBanner';
-import GoogleAdSense from '@/components/GoogleAdSense';
 import { useReportData } from '@/core/hooks/candidates/use-candidates-report-data';
 import {
   genderDistributionMockData,
@@ -49,10 +48,12 @@ import {
   type DirectusCandidate,
   type CandidateFilters,
 } from '@/core/hooks/candidates/use-candidates-search';
+import { endpoints } from '@/core/constants/endpoints';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name: string): string {
+  if (!name) return '';
   return name
     .trim()
     .split(' ')
@@ -71,7 +72,11 @@ function CandidateCard({ candidate, onClick }: { candidate: DirectusCandidate; o
   const partyColor = candidate.party?.color_code ?? `hsl(${Math.random() * 360}, 70%, 50%)`;
   const initials = getInitials(candidate.full_name);
   const partyName = candidate.independent_candidate ? 'स्वतन्त्र' : (candidate.party?.name ?? '—');
-
+  const partySymbol = candidate.independent_candidate
+    ? '/swastik.png'
+    : candidate.party?.symbol
+      ? endpoints.image.getRawImageById(candidate.party?.symbol)
+      : null;
   return (
     <button
       onClick={onClick}
@@ -80,16 +85,29 @@ function CandidateCard({ candidate, onClick }: { candidate: DirectusCandidate; o
       <div className="h-1.5" style={{ backgroundColor: partyColor }} />
       <div className="p-5">
         <div className="flex items-start gap-3 mb-3">
-          <div
-            className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 border-2"
-            style={{
-              color: partyColor,
-              borderColor: partyColor,
-              backgroundColor: `${partyColor}15`, // light tint (optional)
-            }}
-          >
-            {initials}
-          </div>
+          {partySymbol ? (
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 border-2 overflow-hidden"
+              style={{
+                color: partyColor,
+                borderColor: partyColor,
+                backgroundColor: `${partyColor}15`,
+              }}
+            >
+              <img src={partySymbol} alt={`${partyName} symbol`} className="w-8 h-8 object-contain" />
+            </div>
+          ) : (
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 border-2"
+              style={{
+                color: partyColor,
+                borderColor: partyColor,
+                backgroundColor: `${partyColor}15`,
+              }}
+            >
+              {initials}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-foreground text-base">{candidate.full_name}</h3>
             <p className="text-xs font-semibold" style={{ color: partyColor }}>
@@ -759,7 +777,6 @@ export default function Candidates() {
         </div>
       </section>
 
-      <GoogleAdSense />
       <Footer />
     </div>
   );
