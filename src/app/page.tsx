@@ -37,82 +37,10 @@ import { useElectionSummary } from '@/core/hooks/elections/use-election-summary'
 import { toNepaliNumber } from '@/core/lib/nepali-number';
 import { useHotSeats } from '@/core/hooks/elections/use-hot-seats';
 import { useFamousCandidates } from '@/core/hooks/candidates/use-famous-candidates';
+import { endpoints } from '@/core/constants/endpoints';
+import { useParties } from '@/core/hooks/parties/use-parties';
 
 /* ─── Static data (not in Directus) ─── */
-
-const hotSeats = [
-  {
-    constituency: 'काठमाडौं-१',
-    candidates: ['राम कुमार शर्मा (दल क)', 'प्रिया सिंह (दल ख)'],
-    status: 'अति प्रतिस्पर्धात्मक',
-  },
-  {
-    constituency: 'ललितपुर-२',
-    candidates: ['बिक्रम थापा (दल ग)', 'दीपिका पौडेल (दल घ)'],
-    status: 'कडा प्रतिस्पर्धा',
-  },
-  {
-    constituency: 'मोरङ-३',
-    candidates: ['सुरेश यादव (दल ख)', 'कमला राई (दल क)'],
-    status: 'अति प्रतिस्पर्धात्मक',
-  },
-  {
-    constituency: 'चितवन-२',
-    candidates: ['हरि बहादुर (दल क)', 'सीता गुरुङ (दल घ)'],
-    status: 'कडा प्रतिस्पर्धा',
-  },
-  {
-    constituency: 'कास्की-१',
-    candidates: ['विष्णु पौडेल (दल ग)', 'गीता शर्मा (दल ख)'],
-    status: 'रोचक',
-  },
-];
-
-const popularFaces = [
-  {
-    name: 'राम कुमार शर्मा',
-    party: 'दल क',
-    constituency: 'काठमाडौं-१',
-    image: 'र.कु.',
-  },
-  {
-    name: 'प्रिया सिंह',
-    party: 'दल ख',
-    constituency: 'काठमाडौं-१',
-    image: 'प्रि.',
-  },
-  {
-    name: 'बिक्रम थापा',
-    party: 'दल ग',
-    constituency: 'ललितपुर-२',
-    image: 'बि.',
-  },
-  {
-    name: 'दीपिका पौडेल',
-    party: 'दल घ',
-    constituency: 'ललितपुर-२',
-    image: 'दी.',
-  },
-  { name: 'सुरेश यादव', party: 'दल ख', constituency: 'मोरङ-३', image: 'सु.' },
-  { name: 'कमला राई', party: 'दल क', constituency: 'मोरङ-३', image: 'क.' },
-];
-
-const politicalParties = [
-  { name: 'नेपाली काँग्रेस', shortName: 'ने.का.', color: 'bg-primary' },
-  { name: 'नेकपा एमाले', shortName: 'एमाले', color: 'bg-secondary' },
-  { name: 'नेकपा माओवादी केन्द्र', shortName: 'माओ.', color: 'bg-destructive' },
-  {
-    name: 'राष्ट्रिय स्वतन्त्र पार्टी',
-    shortName: 'रास्वपा',
-    color: 'bg-accent',
-  },
-  { name: 'जनता समाजवादी पार्टी', shortName: 'जसपा', color: 'bg-chart-4' },
-  {
-    name: 'राष्ट्रिय प्रजातन्त्र पार्टी',
-    shortName: 'राप्रपा',
-    color: 'bg-chart-5',
-  },
-];
 
 // Turnout trend years — labels only; values come from Directus turnout_1..5
 const TURNOUT_YEARS = ['२०६४', '२०७०', '२०७४', '२०७९', '२०८३'];
@@ -276,6 +204,7 @@ export default function Home() {
   const { hotSeats, isLoading: hotSeatsLoading, totalHotSeatCount } = useHotSeats();
 
   const { candidates: famousCandidates, isLoading: famousLoading, totalFamousCandidatesCount } = useFamousCandidates();
+  const { parties, isLoading: partiesLoading } = useParties();
 
   const getCurrentDistricts = () => (selectedProvince ? districtsByProvince[selectedProvince] || [] : []);
 
@@ -697,34 +626,82 @@ export default function Home() {
               सबै हेर्नुहोस् <ChevronRight size={16} />
             </Link>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {politicalParties.map((party, i) => {
-              // Map party index to prev election party count
-              const partyCounts = summary?.prevElectionParties;
-              const counts = partyCounts
-                ? [partyCounts.party1, partyCounts.party2, partyCounts.party3, partyCounts.party4, partyCounts.party5]
-                : [];
-              const seats = counts[i];
-              return (
+            {/* ── Loading skeletons ── */}
+            {partiesLoading &&
+              Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-background rounded-xl border border-border p-5 hover:shadow-md hover:border-primary/30 transition-all flex items-center gap-4"
+                  className="bg-background rounded-xl border border-border p-5 flex items-center gap-4 animate-pulse"
                 >
-                  <div
-                    className={`w-12 h-12 ${party.color} rounded-lg flex items-center justify-center text-primary-foreground font-bold text-sm flex-shrink-0`}
-                  >
-                    {party.shortName}
+                  <div className="w-12 h-12 rounded-lg bg-muted flex-shrink-0" />
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className="h-4 bg-muted rounded w-3/4" />
+                    <div className="h-3 bg-muted rounded w-1/2" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-foreground text-sm truncate">{party.name}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {seats !== undefined ? `गत निर्वाचनमा ${toNepaliNumber(seats)} सिट` : 'गत निर्वाचन'}
-                    </p>
-                  </div>
-                  <ChevronRight size={18} className="text-muted-foreground flex-shrink-0" />
                 </div>
-              );
-            })}
+              ))}
+
+            {/* ── Live party cards ── */}
+            {!partiesLoading &&
+              parties.map((party: any, i: number) => {
+                const imageId = party.logoId ?? party.symbolId;
+                const imageUrl = imageId ? endpoints.image.getRawImageById(imageId) : null;
+
+                // Map index → prev election seat count from election_summary
+                const partyCounts = summary?.prevElectionParties;
+                const countsArr = partyCounts
+                  ? [partyCounts.party1, partyCounts.party2, partyCounts.party3, partyCounts.party4, partyCounts.party5]
+                  : [];
+                const seats = countsArr[i];
+
+                return (
+                  <Link
+                    key={party.id}
+                    href="/manifestos"
+                    className="bg-background rounded-xl border border-border p-5 hover:shadow-md hover:border-primary/30 transition-all flex items-center gap-4"
+                  >
+                    {/* ── Party image thumbnail ── */}
+                    <div
+                      className="w-12 h-12 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden"
+                      style={{ backgroundColor: `${party.colorCode}18` }}
+                    >
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={party.shortName}
+                          width={48}
+                          height={48}
+                          className="w-full h-full object-contain p-1"
+                        />
+                      ) : (
+                        /* Fallback: short name text in party color */
+                        <span
+                          className="font-bold text-[11px] text-center leading-tight px-1"
+                          style={{ color: party.colorCode }}
+                        >
+                          {party.shortName}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* ── Party info ── */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-foreground text-sm truncate">{party.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {seats !== undefined && seats > 0
+                          ? `गत निर्वाचनमा ${toNepaliNumber(seats)} सिट`
+                          : party.establishedYear
+                            ? `स्थापना: ${party.establishedYear}`
+                            : 'राजनीतिक दल'}
+                      </p>
+                    </div>
+
+                    <ChevronRight size={18} className="text-muted-foreground flex-shrink-0" />
+                  </Link>
+                );
+              })}
           </div>
         </div>
       </section>
@@ -822,7 +799,7 @@ export default function Home() {
                   className="w-full px-3 py-2.5 border border-border rounded-lg text-foreground bg-background text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 >
                   <option value="">सबै दल</option>
-                  {politicalParties.map((p) => (
+                  {parties.map((p: any) => (
                     <option key={p.name} value={p.name}>
                       {p.name}
                     </option>
