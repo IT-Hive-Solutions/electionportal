@@ -184,18 +184,6 @@ export default function Manifestos() {
         </div>
       </section>
 
-      <section className="py-10 bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-xl font-bold text-foreground mb-3">दलीय नीतिहरू तुलना गर्नुहोस्</h2>
-          <p className="text-muted-foreground text-sm mb-5">
-            हाम्रो अन्तरक्रियात्मक तुलना उपकरण प्रयोग गरेर दलहरू बीचको भिन्नता हेर्नुहोस्
-          </p>
-          <button className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2.5 px-6 rounded-lg transition-colors text-sm">
-            तुलना उपकरण खोल्नुहोस्
-          </button>
-        </div>
-      </section>
-
       <Footer />
     </div>
   );
