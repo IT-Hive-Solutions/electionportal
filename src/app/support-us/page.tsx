@@ -10,19 +10,15 @@ export default function SupportUs() {
   const [selectedAmount, setSelectedAmount] = useState<string | null>(null);
   const [adFormSent, setAdFormSent] = useState(false);
 
-  const donationAmounts = [
-    { amount: 'रु. १००', engAmount: '100', label: 'सुरुवात गर्नुहोस्' },
-    { amount: 'रु. ५००', engAmount: '500', label: 'नियमित समर्थक' },
-    { amount: 'रु. १,०००', engAmount: '1000', label: 'प्रमुख समर्थक' },
-    { amount: 'रु. ५,०००', engAmount: '5000', label: 'संरक्षक' },
-  ];
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors text-sm">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors text-sm"
+        >
           <ArrowLeft size={18} />
           गृहपृष्ठमा फर्कनुहोस्
         </Link>
@@ -52,31 +48,8 @@ export default function SupportUs() {
           {/* Donation Section */}
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-foreground mb-6">दान गर्नुहोस्</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              {donationAmounts.map((item, index) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedAmount(item.engAmount)}
-                  className={`p-4 border rounded-xl transition-all text-center ${
-                    selectedAmount === item.engAmount
-                      ? 'bg-primary border-primary text-primary-foreground'
-                      : 'bg-card border-border hover:border-primary hover:bg-primary/5 text-foreground'
-                  }`}
-                >
-                  <div className="text-xl font-bold mb-1">{item.amount}</div>
-                  <div className="text-xs opacity-80">{item.label}</div>
-                </button>
-              ))}
-            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-card border border-border rounded-xl p-6 text-center">
-                <h3 className="text-lg font-bold text-foreground mb-3">eSewa मार्फत दान गर्नुहोस्</h3>
-                <p className="text-sm text-muted-foreground mb-4">eSewa को माध्यमबाट सुरक्षित र तुरुन्त दान गर्नुहोस्</p>
-                <button className="w-full bg-primary text-primary-foreground font-bold py-2.5 rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                  {selectedAmount ? `eSewa मार्फत रु. ${selectedAmount} दान गर्नुहोस्` : 'eSewa मार्फत दान गर्नुहोस्'}
-                </button>
-              </div>
               <div className="bg-card border border-border rounded-xl p-6 text-center">
                 <h3 className="text-lg font-bold text-foreground mb-3">QR कोड मार्फत दान गर्नुहोस्</h3>
                 <p className="text-sm text-muted-foreground mb-4">मोबाइलबाट QR कोड स्क्यान गर्नुहोस्</p>
@@ -95,8 +68,8 @@ export default function SupportUs() {
             <div className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="p-6 md:p-8">
                 <p className="text-foreground text-sm leading-relaxed mb-6">
-                  हाम्रो पोर्टलमा विज्ञापन दिन चाहनुहुन्छ? हामीसँग सम्पर्क गर्नुहोस्।
-                  हामी तपाईंको आवश्यकता अनुसार विज्ञापन स्थान र मूल्य निर्धारण गर्न सक्छौं।
+                  हाम्रो पोर्टलमा विज्ञापन दिन चाहनुहुन्छ? हामीसँग सम्पर्क गर्नुहोस्। हामी तपाईंको आवश्यकता अनुसार
+                  विज्ञापन स्थान र मूल्य निर्धारण गर्न सक्छौं।
                 </p>
 
                 {adFormSent ? (
@@ -109,7 +82,10 @@ export default function SupportUs() {
                   </div>
                 ) : (
                   <form
-                    onSubmit={(e) => { e.preventDefault(); setAdFormSent(true); }}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      setAdFormSent(true);
+                    }}
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                   >
                     <div>
@@ -173,35 +149,77 @@ export default function SupportUs() {
           {/* Contact Info */}
           <div className="bg-card border border-border rounded-xl p-6">
             <h2 className="text-xl font-bold text-foreground mb-4">हामीसँग सम्पर्क गर्नुहोस्</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Mail size={18} className="text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">इमेल</p>
-                  <p className="text-sm font-semibold text-foreground">support@nepalelection.com</p>
-                </div>
+            <p className="text-sm text-muted-foreground mb-6 text-center">
+              तपाईंको सन्देश वा प्रतिक्रिया हामीलाई पठाउनुहोस्। हामी छिट्टै जवाफ दिनेछौं।
+            </p>
+            <form className="grid grid-cols-1 gap-4" onSubmit={(e) => e.preventDefault()}>
+              {/* Name */}
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1" htmlFor="name">
+                  नाम
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  placeholder="तपाईंको नाम"
+                  className="w-full border border-border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Phone size={18} className="text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">फोन</p>
-                  <p className="text-sm font-semibold text-foreground">+977-1-XXXXXXX</p>
-                </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1" htmlFor="email">
+                  इमेल
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="तपाईंको इमेल"
+                  className="w-full border border-border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <MapPin size={18} className="text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">ठेगाना</p>
-                  <p className="text-sm font-semibold text-foreground">काठमाडौं, नेपाल</p>
-                </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1" htmlFor="phone">
+                  फोन
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="+977-XXXXXXXXX"
+                  className="w-full border border-border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
               </div>
-            </div>
+
+              {/* Message */}
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1" htmlFor="message">
+                  सन्देश
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  placeholder="तपाईंको सन्देश यहाँ लेख्नुहोस्"
+                  rows={4}
+                  className="w-full border border-border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                ></textarea>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="mt-2 w-full bg-primary text-white rounded-lg py-2 text-sm font-semibold hover:bg-primary/90 transition-colors"
+              >
+                पठाउनुहोस्
+              </button>
+            </form>
           </div>
         </div>
       </section>
