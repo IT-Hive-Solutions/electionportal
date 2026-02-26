@@ -21,6 +21,7 @@ export type DirectusCandidate = {
     short_name: string;
     slug: string;
     color_code: string;
+    symbol: string;
   } | null;
   constituency: {
     id: number;
@@ -209,6 +210,7 @@ export function useCandidatesSearch(filters: CandidateFilters) {
     'party.short_name',
     'party.slug',
     'party.color_code',
+    'party.symbol',
     'constituency.id',
     'constituency.name',
     'constituency.slug',
