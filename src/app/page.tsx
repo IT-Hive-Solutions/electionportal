@@ -32,7 +32,6 @@ import {
 } from 'recharts';
 import Footer from '@/components/Footer';
 import AdBanner from '@/components/AdBanner';
-import GoogleAdSense from '@/components/GoogleAdSense';
 import Header from '@/components/Header';
 import { useElectionSummary } from '@/core/hooks/elections/use-election-summary';
 import { toNepaliNumber } from '@/core/lib/nepali-number';
@@ -421,7 +420,7 @@ export default function Home() {
         </div>
       </section>
 
-      {nextAd() === 'paid' ? <AdBanner type="in-content" /> : <GoogleAdSense />}
+      <AdBanner type="in-content" />
 
       {/* ── Hot Seats ── */}
       <section className="py-12 bg-background">
@@ -531,7 +530,7 @@ export default function Home() {
         </div>
       </section>
 
-      {nextAd() === 'paid' ? <AdBanner type="in-content" /> : <GoogleAdSense />}
+      <AdBanner type="in-content" />
 
       {/* ── Last Election Summary ── */}
       <section className="py-12 bg-background">
@@ -581,7 +580,7 @@ export default function Home() {
         </div>
       </section>
 
-      {nextAd() === 'paid' ? <AdBanner type="in-content" /> : <GoogleAdSense />}
+      <AdBanner type="in-content" />
 
       {/* ── Election Statistics & Trends ── */}
       <section className="py-12 bg-card">
@@ -681,7 +680,7 @@ export default function Home() {
         </div>
       </section>
 
-      {nextAd() === 'paid' ? <AdBanner type="in-content" /> : <GoogleAdSense />}
+      <AdBanner type="in-content" />
 
       {/* ── Political Parties ── */}
       <section className="py-12 bg-card">
@@ -843,7 +842,7 @@ export default function Home() {
         </div>
       </section>
 
-      {nextAd() === 'paid' ? <AdBanner type="in-content" /> : <GoogleAdSense />}
+      <AdBanner type="in-content" />
 
       {/* ── News ── */}
       <section className="py-12 bg-background">
@@ -909,7 +908,7 @@ export default function Home() {
         </div>
       </section>
 
-      {nextAd() === 'paid' ? <AdBanner type="in-content" /> : <GoogleAdSense />}
+      <AdBanner type="in-content" />
 
       {/* ── About ── */}
       <section id="about" className="py-12 bg-card">

@@ -32,7 +32,6 @@ import {
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdBanner from '@/components/AdBanner';
-import GoogleAdSense from '@/components/GoogleAdSense';
 import { useReportData } from '@/core/hooks/candidates/use-candidates-report-data';
 import {
   genderDistributionMockData,
@@ -778,7 +777,6 @@ export default function Candidates() {
         </div>
       </section>
 
-      <GoogleAdSense />
       <Footer />
     </div>
   );

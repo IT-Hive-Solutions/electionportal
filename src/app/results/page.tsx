@@ -19,7 +19,6 @@ import { ArrowLeft, TrendingUp, ChevronRight, X, Users, Vote, BarChart3, MapPin 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdBanner from '@/components/AdBanner';
-import GoogleAdSense from '@/components/GoogleAdSense';
 
 /* ─── National Level Data ─── */
 const nationalDirect = [
@@ -694,8 +693,6 @@ export default function Results() {
               </div>
             </div>
           </section>
-
-          <GoogleAdSense />
 
           {/* Constituency-Level Results */}
           <section className="py-10 bg-card border-t border-border">
