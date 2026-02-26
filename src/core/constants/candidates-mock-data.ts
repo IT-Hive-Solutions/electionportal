@@ -1,31 +1,31 @@
 export const genderDistributionMockData = [
-    { name: 'पुरुष', value: 6245, color: '#003da5' },
-    { name: 'महिला', value: 2489, color: '#c41e3a' },
-    { name: 'अन्य', value: 200, color: '#2d8659' },
+    { name: 'पुरुष', value: 0, color: '#003da5' },
+    { name: 'महिला', value: 0, color: '#c41e3a' },
+    { name: 'अन्य', value: 0, color: '#2d8659' },
 ];
 
 export const partyWiseCandidatesMockData = [
-    { party: 'ने.का.', candidates: 1650, color: '#c41e3a' },
-    { party: 'एमाले', candidates: 1580, color: '#003da5' },
-    { party: 'माओवादी', candidates: 1320, color: '#d4a574' },
-    { party: 'रास्वपा', candidates: 980, color: '#6b5b4a' },
-    { party: 'जसपा', candidates: 850, color: '#8b6f47' },
-    { party: 'स्वतन्त्र', candidates: 2554, color: '#2d8659' },
+    { party: 'ने.का.', candidates: 0, color: '#c41e3a' },
+    { party: 'एमाले', candidates: 0, color: '#003da5' },
+    { party: 'माओवादी', candidates: 0, color: '#d4a574' },
+    { party: 'रास्वपा', candidates: 0, color: '#6b5b4a' },
+    { party: 'जसपा', candidates: 0, color: '#8b6f47' },
+    { party: 'स्वतन्त्र', candidates: 0, color: '#2d8659' },
 ];
 
 export const ageDistributionMockData = [
-    { group: '२१-३०', count: 1245 },
-    { group: '३१-४०', count: 2890 },
-    { group: '४१-५०', count: 2567 },
-    { group: '५१-६०', count: 1432 },
-    { group: '६०+', count: 800 },
+    { group: '२१-३०', count: 0 },
+    { group: '३१-४०', count: 0 },
+    { group: '४१-५०', count: 0 },
+    { group: '५१-६०', count: 0 },
+    { group: '६०+', count: 0 },
 ];
 
 export const educationDistributionMockData = [
-    { name: 'स्नातकोत्तर+', value: 3200, color: '#003da5' },
-    { name: 'स्नातक', value: 2800, color: '#c41e3a' },
-    { name: 'SLC/SEE', value: 1600, color: '#d4a574' },
-    { name: 'अन्य', value: 1334, color: '#8b6f47' },
+    { name: 'स्नातकोत्तर+', value: 0, color: '#003da5' },
+    { name: 'स्नातक', value: 0, color: '#c41e3a' },
+    { name: 'SLC/SEE', value: 0, color: '#d4a574' },
+    { name: 'अन्य', value: 0, color: '#8b6f47' },
 ];
 
 /* ─── Province / District / Constituency Data ─── */

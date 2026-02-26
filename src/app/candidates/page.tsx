@@ -3,12 +3,31 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import {
-  ArrowLeft, Award, MapPin, ChevronRight, Users, UserCheck,
-  Mail, Phone, BookOpen, Briefcase, Filter, Building2, Loader2,
+  ArrowLeft,
+  Award,
+  MapPin,
+  ChevronRight,
+  Users,
+  UserCheck,
+  Mail,
+  Phone,
+  BookOpen,
+  Briefcase,
+  Filter,
+  Building2,
+  Loader2,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -75,7 +94,9 @@ function CandidateCard({
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-foreground text-base">{candidate.full_name}</h3>
+            <h3 className="font-bold text-foreground text-base">
+              {candidate.full_name}
+            </h3>
             <p className="text-xs font-semibold" style={{ color: partyColor }}>
               {partyName}
             </p>
@@ -94,7 +115,8 @@ function CandidateCard({
 
         <div className="flex items-center justify-between border-t border-border pt-3">
           <span className="text-xs text-muted-foreground">
-            {genderLabel(candidate.gender)} | उमेर {toNepaliNumber(candidate.age)}
+            {genderLabel(candidate.gender)} | उमेर{" "}
+            {toNepaliNumber(candidate.age)}
           </span>
           {candidate.is_winner && (
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-bold">
@@ -142,7 +164,9 @@ function CandidateDetailView({
       )}
 
       {error && (
-        <div className="max-w-7xl mx-auto px-4 py-10 text-center text-red-500">{error}</div>
+        <div className="max-w-7xl mx-auto px-4 py-10 text-center text-red-500">
+          {error}
+        </div>
       )}
 
       {c && !isLoading && (
@@ -153,18 +177,28 @@ function CandidateDetailView({
               <div className="flex items-start gap-6">
                 <div
                   className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold flex-shrink-0"
-                  style={{ backgroundColor: `${partyColor}20`, color: partyColor }}
+                  style={{
+                    backgroundColor: `${partyColor}20`,
+                    color: partyColor,
+                  }}
                 >
                   {getInitials(c.full_name)}
                 </div>
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-foreground mb-1">{c.full_name}</h1>
+                  <h1 className="text-3xl font-bold text-foreground mb-1">
+                    {c.full_name}
+                  </h1>
                   <div className="flex flex-wrap items-center gap-3 mb-2">
                     <span
                       className="px-3 py-1 rounded-full text-xs font-bold"
-                      style={{ backgroundColor: `${partyColor}20`, color: partyColor }}
+                      style={{
+                        backgroundColor: `${partyColor}20`,
+                        color: partyColor,
+                      }}
                     >
-                      {c.independent_candidate ? "स्वतन्त्र" : (c.party?.name ?? "—")}
+                      {c.independent_candidate
+                        ? "स्वतन्त्र"
+                        : (c.party?.name ?? "—")}
                     </span>
                     <span className="flex items-center gap-1 text-sm text-muted-foreground">
                       <MapPin size={14} />
@@ -183,7 +217,9 @@ function CandidateDetailView({
                     )}
                   </div>
                   {c.profession && (
-                    <p className="text-foreground text-sm italic">{c.profession}</p>
+                    <p className="text-foreground text-sm italic">
+                      {c.profession}
+                    </p>
                   )}
                 </div>
               </div>
@@ -197,7 +233,9 @@ function CandidateDetailView({
                 <div className="bg-card border border-border rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <BookOpen size={16} className="text-primary" />
-                    <span className="text-xs font-semibold text-muted-foreground">शिक्षा</span>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      शिक्षा
+                    </span>
                   </div>
                   <p className="text-sm font-semibold text-foreground">
                     {c.education ?? "उपलब्ध छैन"}
@@ -207,7 +245,9 @@ function CandidateDetailView({
                 <div className="bg-card border border-border rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Briefcase size={16} className="text-primary" />
-                    <span className="text-xs font-semibold text-muted-foreground">पूर्व पद</span>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      पूर्व पद
+                    </span>
                   </div>
                   <p className="text-sm font-semibold text-foreground">
                     {c.previous_position ?? "उपलब्ध छैन"}
@@ -217,7 +257,9 @@ function CandidateDetailView({
                 <div className="bg-card border border-border rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <MapPin size={16} className="text-primary" />
-                    <span className="text-xs font-semibold text-muted-foreground">जिल्ला / प्रदेश</span>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      जिल्ला / प्रदेश
+                    </span>
                   </div>
                   <p className="text-sm font-semibold text-foreground">
                     {c.constituency?.district?.name ?? "—"} /{" "}
@@ -228,7 +270,9 @@ function CandidateDetailView({
                 <div className="bg-card border border-border rounded-xl p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <UserCheck size={16} className="text-primary" />
-                    <span className="text-xs font-semibold text-muted-foreground">उम्मेदवारी</span>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      उम्मेदवारी
+                    </span>
                   </div>
                   <p className="text-sm font-semibold text-foreground">
                     {c.independent_candidate ? "स्वतन्त्र" : "दलीय"}
@@ -261,8 +305,12 @@ export default function Candidates() {
     party: "all",
   });
 
-  const [selectedCandidateSlug, setSelectedCandidateSlug] = useState<string | null>(null);
-  const [electionType, setElectionType] = useState<"direct" | "proportional">("direct");
+  const [selectedCandidateSlug, setSelectedCandidateSlug] = useState<
+    string | null
+  >(null);
+  const [electionType, setElectionType] = useState<"direct" | "proportional">(
+    "direct",
+  );
 
   // ── Report data (charts) ──
   const { data: reportData } = useReportData({
@@ -285,7 +333,7 @@ export default function Candidates() {
   // ── Filter options from Directus ──
   const { provinces, districts, constituencies, parties } = useFilterOptions(
     searchFilters.province,
-    searchFilters.district
+    searchFilters.district,
   );
 
   // ── Candidates search ──
@@ -301,15 +349,31 @@ export default function Candidates() {
 
   // ── Handlers ──
   const handleProvinceChange = useCallback((value: string) => {
-    setSearchFilters({ province: value, district: "all", constituency: "all", gender: "all", party: "all" });
+    setSearchFilters({
+      province: value,
+      district: "all",
+      constituency: "all",
+      gender: "all",
+      party: "all",
+    });
   }, []);
 
   const handleDistrictChange = useCallback((value: string) => {
-    setSearchFilters((prev) => ({ ...prev, district: value, constituency: "all" }));
+    setSearchFilters((prev) => ({
+      ...prev,
+      district: value,
+      constituency: "all",
+    }));
   }, []);
 
   const handleReset = useCallback(() => {
-    setSearchFilters({ province: "all", district: "all", constituency: "all", gender: "all", party: "all" });
+    setSearchFilters({
+      province: "all",
+      district: "all",
+      constituency: "all",
+      gender: "all",
+      party: "all",
+    });
   }, []);
 
   // ── Detail view ──
@@ -361,30 +425,42 @@ export default function Candidates() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-background border border-border rounded-xl p-4 text-center">
               <Users size={24} className="text-primary mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground mb-1">कुल उम्मेदवार</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                कुल उम्मेदवार
+              </p>
               <p className="text-xl font-bold text-foreground">
                 {toNepaliNumber(totalCandidates.toLocaleString())}
               </p>
             </div>
             <div className="bg-background border border-border rounded-xl p-4 text-center">
               <UserCheck size={24} className="text-primary mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground mb-1">पुरुष / महिला</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                पुरुष / महिला
+              </p>
               <p className="text-xl font-bold text-foreground">
-                {toNepaliNumber(genderDistribution[0]?.value?.toLocaleString() ?? "0")}
+                {toNepaliNumber(
+                  genderDistribution.find(d=>d.name === "पुरुष")?.value?.toLocaleString() ?? "0",
+                )}
                 {" / "}
-                {toNepaliNumber(genderDistribution[1]?.value?.toLocaleString() ?? "0")}
+                {toNepaliNumber(
+                  genderDistribution.find(d=>d.name === "महिला")?.value?.toLocaleString() ?? "0",
+                )}
               </p>
             </div>
             <div className="bg-background border border-border rounded-xl p-4 text-center">
               <Building2 size={24} className="text-primary mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground mb-1">दलगत उम्मेदवार</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                दलगत उम्मेदवार
+              </p>
               <p className="text-xl font-bold text-foreground">
                 {toNepaliNumber(totalCandidates - totalIndependent)}
               </p>
             </div>
             <div className="bg-background border border-border rounded-xl p-4 text-center">
               <Award size={24} className="text-primary mx-auto mb-2" />
-              <p className="text-xs text-muted-foreground mb-1">स्वतन्त्र उम्मेदवार</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                स्वतन्त्र उम्मेदवार
+              </p>
               <p className="text-xl font-bold text-foreground">
                 {toNepaliNumber(totalIndependent)}
               </p>
@@ -410,15 +486,36 @@ export default function Candidates() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div className="bg-card rounded-xl p-6 border border-border">
-              <h3 className="text-lg font-bold text-foreground mb-5">दलगत उम्मेदवार संख्या</h3>
+              <h3 className="text-lg font-bold text-foreground mb-5">
+                दलगत उम्मेदवार संख्या
+              </h3>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={partyWiseCandidates} layout="vertical" margin={{ left: 20 }}>
+                <BarChart
+                  data={partyWiseCandidates}
+                  layout="vertical"
+                  margin={{ left: 20 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis type="number" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
-                  <YAxis type="category" dataKey="party" width={80} tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
+                  <XAxis
+                    type="number"
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="party"
+                    width={80}
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                  />
                   <Tooltip
-                    contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px" }}
-                    formatter={(value: number) => [value.toLocaleString(), "उम्मेदवार"]}
+                    contentStyle={{
+                      backgroundColor: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "8px",
+                    }}
+                    formatter={(value: number) => [
+                      value.toLocaleString(),
+                      "उम्मेदवार",
+                    ]}
                   />
                   <Bar dataKey="candidates" radius={[0, 6, 6, 0]}>
                     {partyWiseCandidates.map((_, i) => (
@@ -430,15 +527,20 @@ export default function Candidates() {
             </div>
 
             <div className="bg-card rounded-xl p-6 border border-border">
-              <h3 className="text-lg font-bold text-foreground mb-5">लिङ्ग अनुसार वितरण</h3>
+              <h3 className="text-lg font-bold text-foreground mb-5">
+                लिङ्ग अनुसार वितरण
+              </h3>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
                     data={genderDistribution}
-                    cx="50%" cy="50%"
+                    cx="50%"
+                    cy="50%"
                     labelLine={false}
                     label={({ name, value }) =>
-                      totalCandidates > 0 ? `${name} ${Math.round((value / totalCandidates) * 100)}%` : name
+                      totalCandidates > 0
+                        ? `${name} ${Math.round((value / totalCandidates) * 100)}%`
+                        : name
                     }
                     outerRadius={100}
                     dataKey="value"
@@ -448,7 +550,12 @@ export default function Candidates() {
                       <Cell key={i} fill={g.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => [value.toLocaleString(), "उम्मेदवार"]} />
+                  <Tooltip
+                    formatter={(value: number) => [
+                      value.toLocaleString(),
+                      "उम्मेदवार",
+                    ]}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -456,31 +563,54 @@ export default function Candidates() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-card rounded-xl p-6 border border-border">
-              <h3 className="text-lg font-bold text-foreground mb-5">उमेर समूह अनुसार</h3>
+              <h3 className="text-lg font-bold text-foreground mb-5">
+                उमेर समूह अनुसार
+              </h3>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={ageDistribution}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="group" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
-                  <YAxis tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px" }}
-                    formatter={(value: number) => [value.toLocaleString(), "उम्मेदवार"]}
+                  <XAxis
+                    dataKey="group"
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
                   />
-                  <Bar dataKey="count" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                  <YAxis
+                    tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "8px",
+                    }}
+                    formatter={(value: number) => [
+                      value.toLocaleString(),
+                      "उम्मेदवार",
+                    ]}
+                  />
+                  <Bar
+                    dataKey="count"
+                    fill="var(--primary)"
+                    radius={[6, 6, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
             <div className="bg-card rounded-xl p-6 border border-border">
-              <h3 className="text-lg font-bold text-foreground mb-5">शैक्षिक योग्यता</h3>
+              <h3 className="text-lg font-bold text-foreground mb-5">
+                शैक्षिक योग्यता
+              </h3>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
                     data={educationDistribution}
-                    cx="50%" cy="50%"
+                    cx="50%"
+                    cy="50%"
                     labelLine={false}
                     label={({ name, value }) =>
-                      totalCandidates > 0 ? `${name} ${Math.round((value / totalCandidates) * 100)}%` : name
+                      totalCandidates > 0
+                        ? `${name} ${Math.round((value / totalCandidates) * 100)}%`
+                        : name
                     }
                     outerRadius={90}
                     dataKey="value"
@@ -490,7 +620,12 @@ export default function Candidates() {
                       <Cell key={i} fill={e.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => [value.toLocaleString(), "उम्मेदवार"]} />
+                  <Tooltip
+                    formatter={(value: number) => [
+                      value.toLocaleString(),
+                      "उम्मेदवार",
+                    ]}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -512,21 +647,27 @@ export default function Candidates() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
               {/* Province */}
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">प्रदेश</label>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  प्रदेश
+                </label>
                 <select
                   value={searchFilters.province}
                   onChange={(e) => handleProvinceChange(e.target.value)}
                   className="w-full px-3 py-2.5 border border-border rounded-lg text-foreground bg-card text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 >
                   {provinces.map((p) => (
-                    <option key={p.value} value={p.value}>{p.label}</option>
+                    <option key={p.value} value={p.value}>
+                      {p.label}
+                    </option>
                   ))}
                 </select>
               </div>
 
               {/* District */}
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">जिल्ला</label>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  जिल्ला
+                </label>
                 <select
                   value={searchFilters.district}
                   onChange={(e) => handleDistrictChange(e.target.value)}
@@ -534,24 +675,33 @@ export default function Candidates() {
                   className="w-full px-3 py-2.5 border border-border rounded-lg text-foreground bg-card text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50"
                 >
                   {districts.map((d) => (
-                    <option key={d.value} value={d.value}>{d.label}</option>
+                    <option key={d.value} value={d.value}>
+                      {d.label}
+                    </option>
                   ))}
                 </select>
               </div>
 
               {/* Constituency */}
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">निर्वाचन क्षेत्र</label>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  निर्वाचन क्षेत्र
+                </label>
                 <select
                   value={searchFilters.constituency}
                   onChange={(e) =>
-                    setSearchFilters((prev) => ({ ...prev, constituency: e.target.value }))
+                    setSearchFilters((prev) => ({
+                      ...prev,
+                      constituency: e.target.value,
+                    }))
                   }
                   disabled={searchFilters.district === "all"}
                   className="w-full px-3 py-2.5 border border-border rounded-lg text-foreground bg-card text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all disabled:opacity-50"
                 >
                   {constituencies.map((c) => (
-                    <option key={c.value} value={c.value}>{c.label}</option>
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -560,11 +710,16 @@ export default function Candidates() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Gender */}
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">लिङ्ग</label>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  लिङ्ग
+                </label>
                 <select
                   value={searchFilters.gender}
                   onChange={(e) =>
-                    setSearchFilters((prev) => ({ ...prev, gender: e.target.value }))
+                    setSearchFilters((prev) => ({
+                      ...prev,
+                      gender: e.target.value,
+                    }))
                   }
                   className="w-full px-3 py-2.5 border border-border rounded-lg text-foreground bg-card text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 >
@@ -577,16 +732,23 @@ export default function Candidates() {
 
               {/* Party */}
               <div>
-                <label className="block text-sm font-semibold text-foreground mb-2">राजनीतिक दल</label>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  राजनीतिक दल
+                </label>
                 <select
                   value={searchFilters.party}
                   onChange={(e) =>
-                    setSearchFilters((prev) => ({ ...prev, party: e.target.value }))
+                    setSearchFilters((prev) => ({
+                      ...prev,
+                      party: e.target.value,
+                    }))
                   }
                   className="w-full px-3 py-2.5 border border-border rounded-lg text-foreground bg-card text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                 >
                   {parties.map((p) => (
-                    <option key={p.value} value={p.value}>{p.label}</option>
+                    <option key={p.value} value={p.value}>
+                      {p.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -649,7 +811,11 @@ export default function Candidates() {
                     {isLoadingMore ? (
                       <Loader2 className="animate-spin" size={16} />
                     ) : null}
-                    अर्को {toNepaliNumber(Math.min(6, totalCount - candidates.length))} उम्मेदवार
+                    अर्को{" "}
+                    {toNepaliNumber(
+                      Math.min(6, totalCount - candidates.length),
+                    )}{" "}
+                    उम्मेदवार
                   </button>
                   <button
                     onClick={loadAll}
@@ -667,9 +833,16 @@ export default function Candidates() {
               {/* Empty State */}
               {candidates.length === 0 && (
                 <div className="bg-background border border-border rounded-xl p-8 text-center">
-                  <UserCheck size={48} className="text-muted-foreground mx-auto mb-3" />
-                  <p className="text-foreground font-semibold mb-1">कुनै उम्मेदवार भेटिएन</p>
-                  <p className="text-sm text-muted-foreground">कृपया फिल्टर परिवर्तन गर्नुहोस्</p>
+                  <UserCheck
+                    size={48}
+                    className="text-muted-foreground mx-auto mb-3"
+                  />
+                  <p className="text-foreground font-semibold mb-1">
+                    कुनै उम्मेदवार भेटिएन
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    कृपया फिल्टर परिवर्तन गर्नुहोस्
+                  </p>
                 </div>
               )}
             </>

@@ -1,5 +1,3 @@
-import { DIRECTUS_BASE_URL } from '@/core/contants/directusEndpoints';
-import { getAccessToken } from '@/core/lib/auth';
 import { getDirectusClient } from '@/core/lib/directus';
 import { readAssetRaw, readFile } from '@directus/sdk';
 import { NextRequest, NextResponse } from 'next/server';
@@ -30,8 +28,8 @@ export async function GET(
     console.log({ id });
 
     try {
-        const token = await getAccessToken();
-        const client = getDirectusClient(token!);
+        
+        const client = getDirectusClient();
         const metadata = await client.request(readFile(id));
         const contentType = metadata.type || 'image/jpeg';
         const stream = await client.request(readAssetRaw(id));
