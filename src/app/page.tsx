@@ -170,7 +170,7 @@ const voterTurnoutData = [
   { year: '२०७०', turnout: 68 },
   { year: '२०७४', turnout: 72 },
   { year: '२०७९', turnout: 75 },
-  { year: '२०८३', turnout: 78 },
+  { year: '२०८२', turnout: 78 },
 ];
 
 const demographicsData = [
@@ -181,13 +181,13 @@ const demographicsData = [
 ];
 
 const provinceComparison = [
-  { name: 'कोशी', '२०७९': 145000, '२०८३': 168000 },
-  { name: 'मधेश', '२०७९': 189000, '२०८३': 215000 },
-  { name: 'बागमती', '२०७९': 267000, '२०८३': 305000 },
-  { name: 'गण्डकी', '२०७९': 156000, '२०८३': 178000 },
-  { name: 'लुम्बिनी', '२०७९': 201000, '२०८३': 232000 },
-  { name: 'कर्णाली', '२०७९': 98000, '२०८३': 112000 },
-  { name: 'सुदूरपश्चिम', '२०७९': 87000, '२०८३': 101000 },
+  { name: 'कोशी', '२०७९': 145000, '२०८२': 168000 },
+  { name: 'मधेश', '२०७९': 189000, '२०८२': 215000 },
+  { name: 'बागमती', '२०७९': 267000, '२०८२': 305000 },
+  { name: 'गण्डकी', '२०७९': 156000, '२०८२': 178000 },
+  { name: 'लुम्बिनी', '२०७९': 201000, '२०८२': 232000 },
+  { name: 'कर्णाली', '२०७९': 98000, '२०८२': 112000 },
+  { name: 'सुदूरपश्चिम', '२०७९': 87000, '२०८२': 101000 },
 ];
 
 /* ─── COMPONENT ─── */
@@ -436,7 +436,7 @@ export default function Home() {
 
           {/* Province Comparison */}
           <div className="bg-background rounded-xl p-6 border border-border">
-            <h3 className="text-lg font-bold text-foreground mb-5">प्रदेश अनुसार तुलना (२०७९ vs २०८३)</h3>
+            <h3 className="text-lg font-bold text-foreground mb-5">प्रदेश अनुसार तुलना (२०७९ vs २०८२)</h3>
             <ResponsiveContainer width="100%" height={320}>
               <BarChart data={provinceComparison}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
@@ -451,7 +451,7 @@ export default function Home() {
                 />
                 <Legend />
                 <Bar dataKey="२०७९" fill="var(--muted-foreground)" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="२०८३" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="२०८२" fill="var(--primary)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
