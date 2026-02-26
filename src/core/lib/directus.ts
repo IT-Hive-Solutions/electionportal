@@ -5,8 +5,8 @@ import {
     staticToken
 } from "@directus/sdk";
 
-export const DIRECTUS_BASE_URL = process.env.DIRECTUS_BASE_URL || "";
-const DIRECTUS_TOKEN = process.env.DIRECTUS_TOKEN || "";
+export const DIRECTUS_BASE_URL = process.env.NEXT_PUBLIC_DIRECTUS_BASE_URL || "";
+const DIRECTUS_TOKEN = process.env.NEXT_PUBLIC_DIRECTUS_TOKEN || "";
 
 export function getDirectusClient() {
     return createDirectus(DIRECTUS_BASE_URL)

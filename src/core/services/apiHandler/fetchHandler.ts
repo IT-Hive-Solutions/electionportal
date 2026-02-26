@@ -53,20 +53,10 @@ export const fetchHandler = async <T = any>(
 
 
 
-export const fetchApiRouteHandler = async  <T = any>(url: string, filter?: SearchFilter): Promise<FetchResult<T>> => {
+export const fetchApiRouteHandler = async  <T = any>(url: string, params?: string): Promise<FetchResult<T>> => {
 
-    let params: any = {
-    }
 
-    if (filter) {
-        params = {
-            ...params,
-            ...filter
-        };
-    }
 
-    const response = await axios.get(url, {
-        params,
-    });
+    const response = await axios.get(`${url}${params ? `?${params}` : ''}`);
     return { data: response?.data?.data?.data, meta: response?.data?.meta };
 }
