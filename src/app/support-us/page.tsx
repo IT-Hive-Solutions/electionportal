@@ -55,7 +55,9 @@ export default function SupportUs() {
                 <p className="text-sm text-muted-foreground mb-4">मोबाइलबाट QR कोड स्क्यान गर्नुहोस्</p>
                 <div className="bg-muted rounded-lg p-6 mb-4 flex items-center justify-center">
                   <div className="w-28 h-28 bg-card border-2 border-primary rounded-lg flex items-center justify-center">
-                    <span className="text-xs text-muted-foreground">QR कोड</span>
+                    <span className="text-xs text-muted-foreground">
+                      <img src="/qr.png" alt="QR Code for Donation" className="w-24 h-24 object-contain" />
+                    </span>
                   </div>
                 </div>
               </div>
