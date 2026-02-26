@@ -9,7 +9,7 @@ interface AdBannerProps {
 }
 
 export default function AdBanner({ type, position = 'middle' }: AdBannerProps) {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   if (!isVisible) return null;
 
@@ -42,7 +42,10 @@ export default function AdBanner({ type, position = 'middle' }: AdBannerProps) {
             <p className="text-sm font-semibold text-muted-foreground">तपाईंको विज्ञापन यहाँ</p>
             <p className="text-xs text-muted-foreground mt-2">300x300 वा लचिलो आकार</p>
           </div>
-          <a href="/support-us" className="inline-block text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+          <a
+            href="/support-us"
+            className="inline-block text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+          >
             प्रायोजन बारेमा जान्नुहोस् &rarr;
           </a>
         </div>
