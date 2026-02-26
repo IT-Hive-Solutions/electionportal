@@ -3,7 +3,7 @@ import type {
   ReportData,
   ReportFilters,
 } from "@/core/services/fetch-report-data";
-import { endpoints } from "../constants/endpoints";
+import { endpoints } from "@/core/constants/endpoints";
 
 type UseReportDataReturn = {
   data: ReportData | null;
