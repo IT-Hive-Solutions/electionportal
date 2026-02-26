@@ -43,7 +43,7 @@ import { useParties } from '@/core/hooks/parties/use-parties';
 /* ─── Static data (not in Directus) ─── */
 
 // Turnout trend years — labels only; values come from Directus turnout_1..5
-const TURNOUT_YEARS = ['२०६४', '२०७०', '२०७४', '२०७९', '२०८३'];
+const TURNOUT_YEARS = ['२०६४', '२०७०', '२०७४', '२०७९', '२०८२'];
 
 const faqItems = [
   {
@@ -583,7 +583,7 @@ export default function Home() {
 
           {/* Province Comparison */}
           <div className="bg-background rounded-xl p-6 border border-border">
-            <h3 className="text-lg font-bold text-foreground mb-5">प्रदेश अनुसार तुलना (२०७९ vs २०८३)</h3>
+            <h3 className="text-lg font-bold text-foreground mb-5">प्रदेश अनुसार तुलना (२०७९ vs २०८२)</h3>
             {isLoading ? (
               <div className="h-[320px] bg-muted animate-pulse rounded-lg" />
             ) : (
@@ -601,7 +601,7 @@ export default function Home() {
                   />
                   <Legend />
                   <Bar dataKey="२०७९" fill="var(--muted-foreground)" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="२०८३" fill="var(--primary)" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="२०८२" fill="var(--primary)" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
