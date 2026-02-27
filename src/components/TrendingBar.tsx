@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { TrendingUp } from 'lucide-react';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { TrendingUp } from "lucide-react";
+import Link from "next/link";
 
 type Constituency = {
   id: number;
@@ -13,11 +13,14 @@ export default function TrendingBar() {
   const [constituencies, setConstituencies] = useState<Constituency[]>([]);
 
   useEffect(() => {
-    const url = new URL('/api/proxy/constituencies', window.location.origin);
-    url.searchParams.set('fields', 'id,name');
-    url.searchParams.set('filter', JSON.stringify({ is_trending: { _eq: true } }));
-    url.searchParams.set('limit', '20');
-    url.searchParams.set('sort', 'name');
+    const url = new URL("/api/proxy/constituencies", window.location.origin);
+    url.searchParams.set("fields", "id,name");
+    url.searchParams.set(
+      "filter",
+      JSON.stringify({ is_trending: { _eq: true } }),
+    );
+    url.searchParams.set("limit", "20");
+    url.searchParams.set("sort", "name");
 
     fetch(url.toString())
       .then((r) => r.json())
@@ -34,11 +37,12 @@ export default function TrendingBar() {
   return (
     <div className="bg-secondary text-secondary-foreground py-2 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-3">
-
         {/* Label */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
           <TrendingUp size={14} />
-          <span className="text-xs font-bold uppercase tracking-wider">ट्रेन्डिङ</span>
+          <span className="text-xs font-bold uppercase tracking-wider">
+            ट्रेन्डिङ
+          </span>
         </div>
 
         {/* Scrolling ticker */}
@@ -58,7 +62,7 @@ export default function TrendingBar() {
               {scrollItems.map((c, i) => (
                 <Link
                   key={`${c.id}-${i}`}
-                  href={`/candidates?constituency=${c.id}`}
+                  href={`/candidates?constituencyId=${c.id}`}
                   className="bg-secondary-foreground/15 hover:bg-secondary-foreground/25 text-secondary-foreground px-3 py-0.5 rounded-full text-xs font-semibold transition-colors flex-shrink-0"
                 >
                   {c.name}
@@ -67,7 +71,6 @@ export default function TrendingBar() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
