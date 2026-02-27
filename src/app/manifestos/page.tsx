@@ -1,13 +1,12 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { ArrowLeft, FileText, Download } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import AdBanner from "@/components/AdBanner";
-import GoogleAdSense from "@/components/GoogleAdSense";
-import { useManifestos } from "@/core/hooks/manifesto/use-manifesto";
-import { DIRECTUS_BASE_URL, getDownloadUrl } from "@/core/lib/directus";
+import Link from 'next/link';
+import { ArrowLeft, FileText, Download } from 'lucide-react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import AdBanner from '@/components/AdBanner';
+import { useManifestos } from '@/core/hooks/manifesto/use-manifesto';
+import { DIRECTUS_BASE_URL, getDownloadUrl } from '@/core/lib/directus';
 
 export default function Manifestos() {
   const { manifestos, isLoading, error } = useManifestos();
@@ -30,13 +29,9 @@ export default function Manifestos() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 mb-2">
             <FileText size={28} className="text-secondary" />
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground">
-              दलीय घोषणापत्र
-            </h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">दलीय घोषणापत्र</h1>
           </div>
-          <p className="text-muted-foreground">
-            सबै दलको विस्तृत कार्यक्रम र नीतिगत स्थिति पढ्नुहोस्
-          </p>
+          <p className="text-muted-foreground">सबै दलको विस्तृत कार्यक्रम र नीतिगत स्थिति पढ्नुहोस्</p>
         </div>
       </section>
 
@@ -48,10 +43,7 @@ export default function Manifestos() {
           {isLoading && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-card rounded-xl overflow-hidden border border-border animate-pulse"
-                >
+                <div key={i} className="bg-card rounded-xl overflow-hidden border border-border animate-pulse">
                   <div className="h-16 bg-muted" />
                   <div className="p-5 flex flex-col gap-3">
                     <div className="h-3 bg-muted rounded w-1/4" />
@@ -73,10 +65,7 @@ export default function Manifestos() {
           {/* ── Error ── */}
           {error && (
             <div className="text-center py-16">
-              <FileText
-                size={48}
-                className="mx-auto mb-3 text-muted-foreground opacity-30"
-              />
+              <FileText size={48} className="mx-auto mb-3 text-muted-foreground opacity-30" />
               <p className="text-red-500 font-semibold">{error}</p>
             </div>
           )}
@@ -90,13 +79,8 @@ export default function Manifestos() {
                   className="bg-card rounded-xl overflow-hidden border border-border hover:shadow-md transition-shadow"
                 >
                   {/* Party color header */}
-                  <div
-                    className="h-16 flex items-center justify-center"
-                    style={{ backgroundColor: m.partyColor }}
-                  >
-                    <h2 className="text-xl font-bold text-white">
-                      {m.partyName}
-                    </h2>
+                  <div className="h-16 flex items-center justify-center" style={{ backgroundColor: m.partyColor }}>
+                    <h2 className="text-xl font-bold text-white">{m.partyName}</h2>
                   </div>
 
                   <div className="p-5">
@@ -106,9 +90,7 @@ export default function Manifestos() {
                         <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">
                           मुख्य फोकस
                         </p>
-                        <h3 className="text-base font-bold text-foreground">
-                          {m.mainFocus}
-                        </h3>
+                        <h3 className="text-base font-bold text-foreground">{m.mainFocus}</h3>
                       </div>
                     )}
 
@@ -141,9 +123,7 @@ export default function Manifestos() {
 
                     {/* No content fallback */}
                     {!m.mainFocus && !m.mainPoint && !m.summary && (
-                      <p className="text-sm text-muted-foreground mb-4 italic">
-                        विस्तृत जानकारी उपलब्ध छैन।
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-4 italic">विस्तृत जानकारी उपलब्ध छैन।</p>
                     )}
 
                     {/* Actions */}
@@ -201,23 +181,6 @@ export default function Manifestos() {
               )}
             </div>
           )}
-        </div>
-      </section>
-
-      <GoogleAdSense />
-
-      <section className="py-10 bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-xl font-bold text-foreground mb-3">
-            दलीय नीतिहरू तुलना गर्नुहोस्
-          </h2>
-          <p className="text-muted-foreground text-sm mb-5">
-            हाम्रो अन्तरक्रियात्मक तुलना उपकरण प्रयोग गरेर दलहरू बीचको भिन्नता
-            हेर्नुहोस्
-          </p>
-          <button className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2.5 px-6 rounded-lg transition-colors text-sm">
-            तुलना उपकरण खोल्नुहोस्
-          </button>
         </div>
       </section>
 

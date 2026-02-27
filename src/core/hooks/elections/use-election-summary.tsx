@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 // ─── Raw type matching Directus schema exactly ────────────────────────────────
 
@@ -105,21 +105,13 @@ export type ElectionSummary = {
   // Province comparison 2079 vs 2082 (for province comparison chart)
   provinceComparison: {
     name: string;
-    "२०७९": number;
-    "२०८३": number;
+    '२०७९': number;
+    '२०८२': number;
   }[];
 };
 
 // Province name labels (order matches prov1–prov7 in schema)
-const PROVINCE_NAMES = [
-  "कोशी",
-  "मधेश",
-  "बागमती",
-  "गण्डकी",
-  "लुम्बिनी",
-  "कर्णाली",
-  "सुदूरपश्चिम",
-];
+const PROVINCE_NAMES = ['कोशी', 'मधेश', 'बागमती', 'गण्डकी', 'लुम्बिनी', 'कर्णाली', 'सुदूरपश्चिम'];
 
 // ─── Transform raw → derived ──────────────────────────────────────────────────
 
@@ -156,31 +148,25 @@ function transform(raw: ElectionSummaryRaw): ElectionSummary {
       other: n(raw.prev_election_party_other_count),
     },
 
-    turnout: [
-      n(raw.turnout_1),
-      n(raw.turnout_2),
-      n(raw.turnout_3),
-      n(raw.turnout_4),
-      n(raw.turnout_5),
-    ].filter((t) => t > 0),
+    turnout: [n(raw.turnout_1), n(raw.turnout_2), n(raw.turnout_3), n(raw.turnout_4), n(raw.turnout_5)].filter(
+      (t) => t > 0,
+    ),
 
     voterAgeGroups: [
-      { group: "१८-३०", voters: n(raw.voter_count_age_18_30) },
-      { group: "३१-४५", voters: n(raw.voter_count_age_31_45) },
-      { group: "४६-६०", voters: n(raw.voter_count_age_46_60) },
-      { group: "६०+", voters: n(raw.voter_count_age_60_above) },
+      { group: '१८-३०', voters: n(raw.voter_count_age_18_30) },
+      { group: '३१-४५', voters: n(raw.voter_count_age_31_45) },
+      { group: '४६-६०', voters: n(raw.voter_count_age_46_60) },
+      { group: '६०+', voters: n(raw.voter_count_age_60_above) },
     ],
 
     provinceComparison: PROVINCE_NAMES.map((name, i) => {
       const prov = i + 1;
-      const key2079 =
-        `voter_count_prov${prov}_2079` as keyof ElectionSummaryRaw;
-      const key2082 =
-        `voter_count_prov${prov}_2082` as keyof ElectionSummaryRaw;
+      const key2079 = `voter_count_prov${prov}_2079` as keyof ElectionSummaryRaw;
+      const key2082 = `voter_count_prov${prov}_2082` as keyof ElectionSummaryRaw;
       return {
         name,
-        "२०७९": n(raw[key2079] as number | null),
-        "२०८३": n(raw[key2082] as number | null),
+        '२०७९': n(raw[key2079] as number | null),
+        '२०८२': n(raw[key2082] as number | null),
       };
     }),
   };
@@ -196,8 +182,8 @@ export function useElectionSummary() {
   useEffect(() => {
     // election_summary is a singleton — Directus serves it at the collection level
     // Since your proxy route handles readItems, fetch with limit:1
-    const url = new URL("/api/proxy/election_summary", window.location.origin);
-    url.searchParams.set("limit", "1");
+    const url = new URL('/api/proxy/election_summary', window.location.origin);
+    url.searchParams.set('limit', '1');
 
     fetch(url.toString())
       .then((res) => {
@@ -206,15 +192,13 @@ export function useElectionSummary() {
       })
       .then((json) => {
         // Singleton may return object or array with one item
-        const raw: ElectionSummaryRaw = Array.isArray(json.data)
-          ? json.data[0]
-          : json.data;
-        if (!raw) throw new Error("No data");
+        const raw: ElectionSummaryRaw = Array.isArray(json.data) ? json.data[0] : json.data;
+        if (!raw) throw new Error('No data');
         setData(transform(raw));
       })
       .catch((err) => {
-        console.error("[useElectionSummary]", err);
-        setError("तथ्याङ्क लोड गर्न सकिएन।");
+        console.error('[useElectionSummary]', err);
+        setError('तथ्याङ्क लोड गर्न सकिएन।');
       })
       .finally(() => setIsLoading(false));
   }, []);

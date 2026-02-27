@@ -6,7 +6,6 @@ import { ArrowLeft, CheckCircle, Clock, Users, ChevronDown, ChevronUp } from 'lu
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AdBanner from '@/components/AdBanner';
-import GoogleAdSense from '@/components/GoogleAdSense';
 
 export default function VoterGuide() {
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
@@ -171,8 +170,6 @@ export default function VoterGuide() {
               ))}
             </div>
           </div>
-
-          <GoogleAdSense />
 
           {/* Important Dates */}
           <div className="mb-12 bg-primary/5 border-l-4 border-primary rounded-lg p-6">
