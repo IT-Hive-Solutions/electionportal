@@ -36,7 +36,7 @@ import AdBanner from "@/components/AdBanner";
 import Header from "@/components/Header";
 import { useElectionSummary } from "@/core/hooks/elections/use-election-summary";
 import { toNepaliNumber } from "@/core/lib/nepali-number";
-import { useHotSeats } from "@/core/hooks/elections/use-hot-seats";
+import { useHotSeats } from "@/core/hooks/constituency/use-hot-seats";
 import { useFamousCandidates } from "@/core/hooks/candidates/use-famous-candidates";
 import { useParties } from "@/core/hooks/parties/use-parties";
 import { endpoints } from "@/core/constants/endpoints";
@@ -110,44 +110,6 @@ const faqItems = [
   },
 ];
 
-// const newsItems = [
-//   {
-//     source: "रातोपाटी",
-//     title: "काठमाडौं-१ मा कडा प्रतिस्पर्धा हुने संकेत",
-//     time: "२ घण्टा अघि",
-//     url: "#",
-//   },
-//   {
-//     source: "अनलाइनखबर",
-//     title: "निर्वाचन आयोगले मतदाता शिक्षा अभियान सुरु गर्यो",
-//     time: "५ घण्टा अघि",
-//     url: "#",
-//   },
-//   {
-//     source: "सेतोपाटी",
-//     title: "युवा मतदाताको सहभागिता यसपटक बढ्ने",
-//     time: "८ घण्टा अघि",
-//     url: "#",
-//   },
-//   {
-//     source: "नागरिक न्युज",
-//     title: "प्रदेश ३ मा सबैभन्दा बढी मतदाता दर्ता",
-//     time: "१ दिन अघि",
-//     url: "#",
-//   },
-//   {
-//     source: "काठमाडौं पोस्ट",
-//     title: "महिला उम्मेदवारको संख्यामा उल्लेख्य वृद्धि",
-//     time: "१ दिन अघि",
-//     url: "#",
-//   },
-//   {
-//     source: "हिमालय टाइम्स",
-//     title: "दलहरूले घोषणापत्र सार्वजनिक गर्न थाले",
-//     time: "२ दिन अघि",
-//     url: "#",
-//   },
-// ];
 
 const provinces = [
   { name: 'कोशी प्रदेश', value: 'koshi' },
