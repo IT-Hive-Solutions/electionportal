@@ -29,16 +29,18 @@ import {
   AreaChart,
   Area,
   Legend,
-} from 'recharts';
-import Footer from '@/components/Footer';
-import AdBanner from '@/components/AdBanner';
-import Header from '@/components/Header';
-import { useElectionSummary } from '@/core/hooks/elections/use-election-summary';
-import { toNepaliNumber } from '@/core/lib/nepali-number';
-import { useHotSeats } from '@/core/hooks/elections/use-hot-seats';
-import { useFamousCandidates } from '@/core/hooks/candidates/use-famous-candidates';
-import { endpoints } from '@/core/constants/endpoints';
-import { useParties } from '@/core/hooks/parties/use-parties';
+} from "recharts";
+import Footer from "@/components/Footer";
+import AdBanner from "@/components/AdBanner";
+// import GoogleAdSense from "@/components/GoogleAdSense";
+import Header from "@/components/Header";
+import { useElectionSummary } from "@/core/hooks/elections/use-election-summary";
+import { toNepaliNumber } from "@/core/lib/nepali-number";
+import { useHotSeats } from "@/core/hooks/constituency/use-hot-seats";
+import { useFamousCandidates } from "@/core/hooks/candidates/use-famous-candidates";
+import { useParties } from "@/core/hooks/parties/use-parties";
+import { endpoints } from "@/core/constants/endpoints";
+import { useElectionNews } from "@/core/hooks/elections/use-election-news";
 
 /* ─── Static data (not in Directus) ─── */
 
@@ -108,44 +110,6 @@ const faqItems = [
   },
 ];
 
-const newsItems = [
-  {
-    source: 'रातोपाटी',
-    title: 'काठमाडौं-१ मा कडा प्रतिस्पर्धा हुने संकेत',
-    time: '२ घण्टा अघि',
-    url: '#',
-  },
-  {
-    source: 'अनलाइनखबर',
-    title: 'निर्वाचन आयोगले मतदाता शिक्षा अभियान सुरु गर्यो',
-    time: '५ घण्टा अघि',
-    url: '#',
-  },
-  {
-    source: 'सेतोपाटी',
-    title: 'युवा मतदाताको सहभागिता यसपटक बढ्ने',
-    time: '८ घण्टा अघि',
-    url: '#',
-  },
-  {
-    source: 'नागरिक न्युज',
-    title: 'प्रदेश ३ मा सबैभन्दा बढी मतदाता दर्ता',
-    time: '१ दिन अघि',
-    url: '#',
-  },
-  {
-    source: 'काठमाडौं पोस्ट',
-    title: 'महिला उम्मेदवारको संख्यामा उल्लेख्य वृद्धि',
-    time: '१ दिन अघि',
-    url: '#',
-  },
-  {
-    source: 'हिमालय टाइम्स',
-    title: 'दलहरूले घोषणापत्र सार्वजनिक गर्न थाले',
-    time: '२ दिन अघि',
-    url: '#',
-  },
-];
 
 const provinces = [
   { name: 'कोशी प्रदेश', value: 'koshi' },
@@ -205,8 +169,9 @@ export default function Home() {
 
   const { candidates: famousCandidates, isLoading: famousLoading, totalFamousCandidatesCount } = useFamousCandidates();
   const { parties, isLoading: partiesLoading } = useParties();
-
-  const getCurrentDistricts = () => (selectedProvince ? districtsByProvince[selectedProvince] || [] : []);
+  const { news: newsItems, isLoading: newsLoading } = useElectionNews(6);
+  const getCurrentDistricts = () =>
+    selectedProvince ? districtsByProvince[selectedProvince] || [] : [];
 
   // Build stat cards from live data (falls back to skeleton while loading)
   const statsCards = [
@@ -837,21 +802,41 @@ export default function Home() {
             </a>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {newsItems.map((news, i) => (
-              <a
-                key={i}
-                href={news.url}
-                className="bg-card border border-border rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all block"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[10px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full">
-                    {news.source}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">{news.time}</span>
-                </div>
-                <h3 className="font-semibold text-foreground text-sm leading-snug">{news.title}</h3>
-              </a>
-            ))}
+            {newsLoading
+              ? Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-card border border-border rounded-xl p-5 animate-pulse"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="h-4 w-16 bg-muted rounded-full" />
+                      <div className="h-3 w-12 bg-muted rounded" />
+                    </div>
+                    <div className="h-4 bg-muted rounded w-full mb-1.5" />
+                    <div className="h-4 bg-muted rounded w-4/5" />
+                  </div>
+                ))
+              : newsItems.map((news) => (
+                  <a
+                    key={news.id}
+                    href={news.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-card border border-border rounded-xl p-5 hover:shadow-md hover:border-primary/30 transition-all block"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full">
+                        {news.source}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {news.timeLabel}
+                      </span>
+                    </div>
+                    <h3 className="font-semibold text-foreground text-sm leading-snug">
+                      {news.title}
+                    </h3>
+                  </a>
+                ))}
           </div>
         </div>
       </section>

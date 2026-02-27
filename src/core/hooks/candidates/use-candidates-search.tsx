@@ -343,13 +343,13 @@ export function useCandidatesSearch(filters: CandidateFilters) {
 
 // ─── Hook: single candidate detail ───────────────────────────────────────────
 
-export function useCandidateDetail(slug: string | null) {
+export function useCandidateDetail(id: number | null) {
   const [candidate, setCandidate] = useState<DirectusCandidate | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!slug) {
+    if (!id) {
       setCandidate(null);
       return;
     }
@@ -382,7 +382,7 @@ export function useCandidateDetail(slug: string | null) {
 
     proxyFetch<DirectusCandidate[]>('candidates', {
       fields: FIELDS,
-      filter: JSON.stringify({ slug: { _eq: slug } }),
+      filter: JSON.stringify({ id: { _eq: id } }),
       limit: 1,
     })
       .then((data) => {
@@ -393,7 +393,7 @@ export function useCandidateDetail(slug: string | null) {
         console.error('[useCandidateDetail]', err);
       })
       .finally(() => setIsLoading(false));
-  }, [slug]);
+  }, [id]);
 
   return { candidate, isLoading, error };
 }
