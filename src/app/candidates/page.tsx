@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   BarChart,
@@ -318,11 +319,59 @@ function CandidateDetailView({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-export default function Candidates() {
+export  function CandidatesPage() {
   // Chart filter state (shared with report data hook)
   const [selectedProvince, setSelectedProvince] = useState("all");
   const [selectedDistrict, setSelectedDistrict] = useState("all");
   const [selectedParty, setSelectedParty] = useState("all");
+  const searchParams = useSearchParams();
+  const candidateListRef = useRef<HTMLDivElement>(null);
+
+  // ── Read URL params on mount and set filters / open detail ──
+  useEffect(() => {
+    const constituencyId = searchParams.get("constituencyId");
+    const candidateId = searchParams.get("candidateId");
+
+    if (candidateId) {
+      // Open detail view directly
+      setSelectedCandidateId(Number(candidateId));
+      return;
+    }
+
+    if (constituencyId) {
+      // Fetch constituency info to get its slug + parent district + province
+      const url = new URL(`/api/proxy/constituencies`, window.location.origin);
+      url.searchParams.set(
+        "fields",
+        "id,name,slug,district.id,district.name,district.slug,district.province.id,district.province.name,district.province.slug",
+      );
+      url.searchParams.set(
+        "filter",
+        JSON.stringify({ id: { _eq: Number(constituencyId) } }),
+      );
+      url.searchParams.set("limit", "1");
+
+      fetch(url.toString())
+        .then((r) => r.json())
+        .then((json) => {
+          const c = json.data?.[0];
+          if (!c) return;
+          setSearchFilters({
+            province: c.district?.province?.slug ?? "all",
+            district: c.district?.slug ?? "all",
+            constituency: c.slug,
+            gender: "all",
+            party: "all",
+          });
+          // Scroll to candidate list after filters are set
+          setTimeout(() => {
+            candidateListRef.current?.scrollIntoView({ behavior: "smooth" });
+          }, 300);
+        })
+        .catch(console.error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once on mount
 
   // Search section filter state (independent, more granular)
   const [searchFilters, setSearchFilters] = useState<CandidateFilters>({
@@ -333,9 +382,9 @@ export default function Candidates() {
     party: "all",
   });
 
-  const [selectedCandidateId, setSelectedCandidateId] = useState<
-    number | null
-  >(null);
+  const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
+    null,
+  );
   const [electionType, setElectionType] = useState<"direct" | "proportional">(
     "direct",
   );
@@ -719,7 +768,7 @@ export default function Candidates() {
       <AdBanner type="in-content" />
 
       {/* ── Search Section ── */}
-      <section className="py-10 bg-card">
+      <section ref={candidateListRef} className="py-10 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
             <Filter size={22} className="text-primary" /> उम्मेदवार खोज्नुहोस्
@@ -934,5 +983,15 @@ export default function Candidates() {
       </section>
 
       <Footer />
-    </div>  );
+    </div>
+  );
 }
+
+export default function Candidates() {
+  return (
+    <Suspense>
+      <CandidatesPage />
+    </Suspense>
+  );
+}
+
