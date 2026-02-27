@@ -994,12 +994,12 @@ export default function Home() {
                 सम्बन्धित समाचार
               </h2>
             </div>
-            <a
-              href="#"
+            <Link
+              href={"/news"}
               className="text-sm font-semibold text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
             >
               सबै हेर्नुहोस् <ChevronRight size={16} />
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {newsLoading
@@ -1017,7 +1017,7 @@ export default function Home() {
                   </div>
                 ))
               : newsItems.map((news) => (
-                  <a
+                  <Link
                     key={news.id}
                     href={news.url}
                     target="_blank"
@@ -1035,7 +1035,7 @@ export default function Home() {
                     <h3 className="font-semibold text-foreground text-sm leading-snug">
                       {news.title}
                     </h3>
-                  </a>
+                  </Link>
                 ))}
           </div>
         </div>
