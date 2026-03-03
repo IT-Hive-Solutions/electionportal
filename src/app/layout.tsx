@@ -55,6 +55,23 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <meta name="monetag" content="3d25145a1ec29976524e7e0b436e3cce"></meta>
+        <Script
+          id="propellerads-script"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(s){
+                s.dataset.zone='10676064',
+                s.src='https://nap5k.com/tag.min.js'
+              })(
+                [document.documentElement, document.body]
+                  .filter(Boolean)
+                  .pop()
+                  .appendChild(document.createElement('script'))
+              );
+            `,
+          }}
+        />
       </head>
       <body className="font-sans antialiased">
         <ins
