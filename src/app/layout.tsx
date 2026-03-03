@@ -54,6 +54,7 @@ export default function RootLayout({
           strategy="afterInteractive"
           crossOrigin="anonymous"
         />
+        <meta name="monetag" content="3d25145a1ec29976524e7e0b436e3cce"></meta>
       </head>
       <body className="font-sans antialiased">
         <ins
