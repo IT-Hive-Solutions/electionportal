@@ -54,24 +54,6 @@ export default function RootLayout({
           strategy="afterInteractive"
           crossOrigin="anonymous"
         />
-        <meta name="monetag" content="3d25145a1ec29976524e7e0b436e3cce"></meta>
-        <Script
-          id="propellerads-script"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(s){
-                s.dataset.zone='10676064',
-                s.src='https://gizokraijaw.net/vignette.min.js'
-              })(
-                [document.documentElement, document.body]
-                  .filter(Boolean)
-                  .pop()
-                  .appendChild(document.createElement('script'))
-              );
-            `,
-          }}
-        />
         <Script src="https://pl28833204.effectivegatecpm.com/d6/3d/66/d63d6609aa4fb501ebb78c088bbb01ba.js"></Script>
       </head>
       <body className="font-sans antialiased">
