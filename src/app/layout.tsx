@@ -72,6 +72,7 @@ export default function RootLayout({
             `,
           }}
         />
+        <Script src="https://pl28833204.effectivegatecpm.com/d6/3d/66/d63d6609aa4fb501ebb78c088bbb01ba.js"></Script>
       </head>
       <body className="font-sans antialiased">
         <ins
