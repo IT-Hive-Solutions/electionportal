@@ -62,7 +62,7 @@ export default function RootLayout({
             __html: `
               (function(s){
                 s.dataset.zone='10676064',
-                s.src='https://nap5k.com/tag.min.js'
+                s.src='https://gizokraijaw.net/vignette.min.js'
               })(
                 [document.documentElement, document.body]
                   .filter(Boolean)
