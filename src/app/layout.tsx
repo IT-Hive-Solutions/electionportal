@@ -54,8 +54,6 @@ export default function RootLayout({
           strategy="afterInteractive"
           crossOrigin="anonymous"
         />
-        <meta name="monetag" content="3d25145a1ec29976524e7e0b436e3cce"></meta>
-        <Script src="https://quge5.com/88/tag.min.js" data-zone="215977" async data-cfasync="false"></Script>
       </head>
       <body className="font-sans antialiased">
         <ins
