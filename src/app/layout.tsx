@@ -55,39 +55,6 @@ export default function RootLayout({
           strategy="afterInteractive"
           crossOrigin="anonymous"
         />
-        <Script
-          id="ad-options"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-      atOptions = {
-        key: 'a26bd9ae012fcf1a0428efade3a8a719',
-        format: 'iframe',
-        height: 90,
-        width: 728,
-        params: {}
-      };
-    `,
-          }}
-        />
-        <Script src="https://www.highperformanceformat.com/a26bd9ae012fcf1a0428efade3a8a719/invoke.js"></Script>
-
-        <Script
-          id="ad-options-2"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-  atOptions = {
-    'key' : 'd563f7b0681f5c24778e1ad9a2ebb17d',
-    'format' : 'iframe',
-    'height' : 60,
-    'width' : 468,
-    'params' : {}
-  };
-`,
-          }}
-        />
-        <Script src="https://www.highperformanceformat.com/d563f7b0681f5c24778e1ad9a2ebb17d/invoke.js"></Script>
       </head>
       <body className="font-sans antialiased">
         <ins
@@ -99,12 +66,34 @@ export default function RootLayout({
           data-full-width-responsive="true"
         ></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        <Script strategy="afterInteractive">
+          {`
+              window.atOptions = {
+                'key' : 'd563f7b0681f5c24778e1ad9a2ebb17d',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+              };
+            `}
+        </Script>
+        <Script
+          src="https://www.highperformanceformat.com/d563f7b0681f5c24778e1ad9a2ebb17d/invoke.js"
+          strategy="afterInteractive"
+        />
         <QueryWrapper>
           <Suspense>{children}</Suspense>
+          <Script
+            async
+            data-cfasync="false"
+            src="https://pl28833242.effectivegatecpm.com/3da129c742e7fa7952459c2f67d17583/invoke.js"
+          ></Script>
+          <div id="container-3da129c742e7fa7952459c2f67d17583"></div>
         </QueryWrapper>
         <FloatingQuizButton />
         <Analytics />
         <SpeedInsights />
+        <Script src="https://pl28833246.effectivegatecpm.com/19/73/c0/1973c0d180dc2b83b494d9e32d9a1c6c.js"></Script>
       </body>
     </html>
   );
