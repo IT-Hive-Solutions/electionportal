@@ -36,6 +36,7 @@ export const metadata: Metadata = {
   },
   other: {
     'google-adsense-account': `${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`,
+    'Content-Language': 'ne',
   },
 };
 
