@@ -54,14 +54,6 @@ export default function RootLayout({
           strategy="afterInteractive"
           crossOrigin="anonymous"
         />
-        <Script src="https://pl28833246.effectivegatecpm.com/19/73/c0/1973c0d180dc2b83b494d9e32d9a1c6c.js"></Script>
-        <Script src="https://pl28833204.effectivegatecpm.com/d6/3d/66/d63d6609aa4fb501ebb78c088bbb01ba.js"></Script>
-        <Script
-          async
-          data-cfasync="false"
-          src="https://pl28833242.effectivegatecpm.com/3da129c742e7fa7952459c2f67d17583/invoke.js"
-        ></Script>
-        <div id="container-3da129c742e7fa7952459c2f67d17583"></div>
         <Script
           id="ad-options"
           strategy="afterInteractive"
@@ -78,6 +70,23 @@ export default function RootLayout({
           }}
         />
         <Script src="https://www.highperformanceformat.com/a26bd9ae012fcf1a0428efade3a8a719/invoke.js"></Script>
+
+        <Script
+          id="ad-options-2"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+  atOptions = {
+    'key' : 'd563f7b0681f5c24778e1ad9a2ebb17d',
+    'format' : 'iframe',
+    'height' : 60,
+    'width' : 468,
+    'params' : {}
+  };
+`,
+          }}
+        />
+        <Script src="https://www.highperformanceformat.com/d563f7b0681f5c24778e1ad9a2ebb17d/invoke.js"></Script>
       </head>
       <body className="font-sans antialiased">
         <ins
