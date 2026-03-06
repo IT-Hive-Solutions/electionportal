@@ -100,10 +100,9 @@ async function loadHomeResults(): Promise<HomeConstituencyResult[]> {
   const constituencies = await proxyFetch<RawConstituency[]>('constituencies', {
     fields: 'id,name,slug,counting_status,district.name',
     filter: JSON.stringify({
-      is_result_active: { _eq: true },
       counting_status: { _in: ['counting', 'completed'] },
     }),
-    sort: '-counting_status', // counting comes before completed alphabetically reversed
+    sort: '-counting_status', 
     limit: 5,
   });
 
