@@ -207,7 +207,7 @@ function ConstituencyResultCard({ c }: { c: HomeConstituencyResult }) {
 
   return (
     <Link
-      href={`/result/${c.slug}`}
+      href={`/results/${c.slug}`}
       className={`bg-background border rounded-xl overflow-hidden hover:shadow-md transition-all group flex flex-col ${
         isActive
           ? 'border-amber-300 dark:border-amber-700'
