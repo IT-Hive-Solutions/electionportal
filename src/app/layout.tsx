@@ -8,6 +8,10 @@ import FloatingQuizButton from '@/components/FloatingQuizButton';
 import './globals.css';
 import QueryWrapper from '@/components/wrapper/QueryWrapper';
 import { Suspense } from 'react';
+import ElectionLivePopover from '@/components/ElectionLivePopover';
+import ElectionDashboardOverlay from '@/components/ElectionLivePopover';
+import { usePartyResults } from '@/core/hooks/projection/useElectionProjection';
+import FloatingPredictionButton from '@/components/FloatingPredictionButton';
 
 const _geist = Geist({ subsets: ['latin'] });
 const _geistMono = Geist_Mono({ subsets: ['latin'] });

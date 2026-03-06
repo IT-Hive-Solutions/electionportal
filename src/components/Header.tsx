@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, X, Vote, Brain } from 'lucide-react';
+import { Menu, X, Vote, Brain, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import TrendingBar from './TrendingBar';
 
@@ -31,6 +31,16 @@ export default function Header() {
                 <div className="text-[10px] text-muted-foreground leading-tight">Nepal Election Portal</div>
               </div>
             </Link>
+
+            {/* Prediction Button */}
+            <div className="flex-1 flex justify-center sm:justify-end">
+              <Link href="/prediction" title="प्रक्षेपण प्रयोग गर्नुहोस्">
+                <span className="fixed bottom-50 right-6  flex items-center gap-2 bg-primary text-primary-foreground px-5 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-pulse">
+                  <Sparkles size={18} />
+                  प्रक्षेपण प्रयोग गर्नुहोस्
+                </span>
+              </Link>
+            </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">

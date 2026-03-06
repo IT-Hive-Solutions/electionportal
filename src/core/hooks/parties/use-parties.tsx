@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 export type Party = {
   id: number;
@@ -17,13 +17,10 @@ export function useParties() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const url = new URL("/api/proxy/parties", window.location.origin);
-    url.searchParams.set(
-      "fields",
-      "id,name,short_name,slug,color_code,logo,symbol,established_year",
-    );
-    url.searchParams.set("sort", "priority");
-    url.searchParams.set("limit", "10");
+    const url = new URL('/api/proxy/parties', window.location.origin);
+    url.searchParams.set('fields', 'id,name,short_name,slug,color_code,logo,symbol,established_year');
+    url.searchParams.set('sort', 'priority');
+    url.searchParams.set('limit', '10');
 
     fetch(url.toString())
       .then((res) => {
@@ -47,7 +44,7 @@ export function useParties() {
             name: p.name,
             shortName: p.short_name,
             slug: p.slug,
-            colorCode: p.color_code ?? "#003da5",
+            colorCode: p.color_code ?? '#003da5',
             logoId: p.logo,
             symbolId: p.symbol,
             establishedYear: p.established_year,
@@ -55,8 +52,8 @@ export function useParties() {
         );
       })
       .catch((err) => {
-        console.error("[useParties]", err);
-        setError("दलहरू लोड गर्न सकिएन।");
+        console.error('[useParties]', err);
+        setError('दलहरू लोड गर्न सकिएन।');
       })
       .finally(() => setIsLoading(false));
   }, []);
