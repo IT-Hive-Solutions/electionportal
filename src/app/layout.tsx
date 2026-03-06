@@ -92,7 +92,7 @@ export default function RootLayout({
         </QueryWrapper>
         <FloatingQuizButton />
         <Analytics />
-        <SpeedInsights />
+        {/* <SpeedInsights /> */}
         <Script src="https://pl28833246.effectivegatecpm.com/19/73/c0/1973c0d180dc2b83b494d9e32d9a1c6c.js"></Script>
       </body>
     </html>

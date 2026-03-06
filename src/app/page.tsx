@@ -41,6 +41,7 @@ import { useFamousCandidates } from "@/core/hooks/candidates/use-famous-candidat
 import { useParties } from "@/core/hooks/parties/use-parties";
 import { endpoints } from "@/core/constants/endpoints";
 import { useElectionNews } from "@/core/hooks/elections/use-election-news";
+import HomeResultsSection from "@/components/HomeResultSection";
 
 /* ─── Static data (not in Directus) ─── */
 
@@ -394,7 +395,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      <HomeResultsSection />
       <AdBanner type="in-content" />
 
       {/* ── Hot Seats ── */}
