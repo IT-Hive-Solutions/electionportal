@@ -46,7 +46,7 @@ export default function ElectionDashboardOverlay({ parties, fptpTotal, prTotal, 
   const partyProjections = parties.map((party) => {
     const predictedFptp = party.won + party.lead * conversionRate;
     const voteShare = totalVotes > 0 ? party.prVotes / totalVotes : 0;
-    const prSeats = voteShare * prTotal;
+    const prSeats = predictedFptp >= 1 && voteShare >= 0.03 ? voteShare * prTotal : 0;
     const totalSeats = predictedFptp + prSeats;
 
     return {
@@ -66,6 +66,7 @@ export default function ElectionDashboardOverlay({ parties, fptpTotal, prTotal, 
   const normalizedProjections = partyProjections.map((p) => ({
     ...p,
     predictedFptp: p.predictedFptp * fptpScale,
+    totalSeats: p.predictedFptp * fptpScale + p.prSeats,
     isRuling: p.isRuling || false,
   }));
 
