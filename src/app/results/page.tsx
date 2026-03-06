@@ -14,6 +14,7 @@ import {
   ChevronRight,
   BarChart2,
   AlertCircle,
+  Users,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -39,7 +40,7 @@ type CandidateResult = {
   } | null;
   constituencyId: number;
   votes: number;
-  round: number | null;
+  rank: number | null;
 };
 
 type ConstituencyResult = {
@@ -85,6 +86,7 @@ function getInitials(name: string) {
 }
 
 const REFRESH_MS = 30_000;
+const TOP_N = 4;
 
 const STATUS_CFG: Record<
   CountingStatus,
@@ -129,7 +131,7 @@ async function proxyFetch<T>(
   return (await res.json()).data as T;
 }
 
-// ─── Data loader ───────────────────────────────────────────────────────────────
+// ─── Raw types ─────────────────────────────────────────────────────────────────
 
 type RawConstituency = {
   id: number;
@@ -143,35 +145,39 @@ type RawConstituency = {
     province: { id: number; name: string };
   } | null;
 };
-type RawCandidate = {
+
+type RawElectionResult = {
   id: number;
-  full_name: string;
-  slug: string;
-  photo: string | null;
-  independent_candidate: boolean;
-  is_winner: boolean;
-  party: {
-    id: number;
-    name: string;
-    short_name: string;
-    color_code: string;
-    symbol: string | null;
-  } | null;
-  constituency: { id: number } | null;
-};
-type RawResult = {
-  id: number;
-  candidate: number;
   votes: number;
-  round: number | null;
+  is_winner: boolean;
+  rank: number | null;
+  constituency: { id: number } | null;
+  candidate: {
+    id: number;
+    full_name: string;
+    slug: string;
+    photo: string | null;
+    independent_candidate: boolean;
+    party: {
+      id: number;
+      name: string;
+      short_name: string;
+      color_code: string;
+      symbol: string | null;
+    } | null;
+  } | null;
 };
+
+// ─── Data loader ───────────────────────────────────────────────────────────────
 
 async function loadResultData(): Promise<ConstituencyResult[]> {
   // 1. Active constituencies
   const constituencies = await proxyFetch<RawConstituency[]>("constituencies", {
     fields:
       "id,name,slug,code,counting_status,district.id,district.name,district.province.id,district.province.name",
-    filter: JSON.stringify({ is_result_active: { _eq: true } }),
+    filter: JSON.stringify({
+      counting_status: { _in: ["counting", "completed"] },
+    }),
     sort: "name",
     limit: -1,
   });
@@ -179,52 +185,55 @@ async function loadResultData(): Promise<ConstituencyResult[]> {
 
   const ids = constituencies.map((c) => c.id);
 
-  // 2. Fetch candidates + results in parallel
-  const [candidates, results] = await Promise.all([
-    proxyFetch<RawCandidate[]>("candidates", {
-      fields:
-        "id,full_name,slug,photo,independent_candidate,is_winner,constituency.id,party.id,party.name,party.short_name,party.color_code,party.symbol",
-      filter: JSON.stringify({ constituency: { id: { _in: ids } } }),
+  // 2. Fetch election_result — filtered directly by constituency M2O field
+  const electionResults = await proxyFetch<RawElectionResult[]>(
+    "election_result",
+    {
+      fields: [
+        "id",
+        "votes",
+        "is_winner",
+        "rank",
+        "constituency.id",
+        "candidate.id",
+        "candidate.full_name",
+        "candidate.slug",
+        "candidate.photo",
+        "candidate.independent_candidate",
+        "candidate.party.id",
+        "candidate.party.name",
+        "candidate.party.short_name",
+        "candidate.party.color_code",
+        "candidate.party.symbol",
+      ].join(","),
+      filter: JSON.stringify({
+        constituency: { id: { _in: ids } },
+      }),
       limit: -1,
-    }),
-    proxyFetch<RawResult[]>("result", {
-      fields: "id,candidate,votes,round",
-      limit: -1,
-    }),
-  ]);
+    },
+  );
 
-  // 3. Build vote map: candidateId → latest round entry
-  const voteMap = new Map<number, { votes: number; round: number | null }>();
-  for (const r of results) {
-    const ex = voteMap.get(r.candidate);
-    if (!ex || (r.round ?? 0) > (ex.round ?? 0))
-      voteMap.set(r.candidate, { votes: r.votes, round: r.round });
-  }
-
-  // 4. Merge candidates + votes
-  const merged: CandidateResult[] = candidates.map((c) => {
-    const v = voteMap.get(c.id);
-    return {
-      id: c.id,
-      full_name: c.full_name,
-      slug: c.slug,
-      photo: c.photo,
-      independent_candidate: c.independent_candidate,
-      is_winner: c.is_winner,
-      party: c.party,
-      constituencyId: c.constituency?.id ?? 0,
-      votes: v?.votes ?? 0,
-      round: v?.round ?? null,
-    };
-  });
-
-  // 5. Group by constituency
+  // 3. Group by constituency
   const grouped = new Map<number, CandidateResult[]>();
-  for (const c of merged) {
-    if (!grouped.has(c.constituencyId)) grouped.set(c.constituencyId, []);
-    grouped.get(c.constituencyId)!.push(c);
+  for (const r of electionResults) {
+    if (!r.candidate || !r.constituency) continue;
+    const cid = r.constituency.id;
+    if (!grouped.has(cid)) grouped.set(cid, []);
+    grouped.get(cid)!.push({
+      id: r.candidate.id,
+      full_name: r.candidate.full_name,
+      slug: r.candidate.slug,
+      photo: r.candidate.photo,
+      independent_candidate: r.candidate.independent_candidate,
+      is_winner: r.is_winner, // from election_result, not candidate
+      party: r.candidate.party,
+      constituencyId: r.constituency.id,
+      votes: r.votes ?? 0,
+      rank: r.rank,
+    });
   }
 
+  // 4. Sort by votes desc
   return constituencies.map((c) => {
     const list = (grouped.get(c.id) ?? []).sort((a, b) => b.votes - a.votes);
     return {
@@ -288,10 +297,20 @@ function CandidateRow({
 
   return (
     <div
-      className={`flex items-center gap-3 p-3 rounded-xl ${candidate.is_winner ? "bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-800" : rank === 1 ? "bg-card border border-primary/20" : "bg-background border border-border"}`}
+      className={`flex items-center gap-3 p-3 rounded-xl ${
+        candidate.is_winner
+          ? "bg-green-50 border border-green-200 dark:bg-green-900/20 dark:border-green-800"
+          : rank === 1
+            ? "bg-card border border-primary/20"
+            : "bg-background border border-border"
+      }`}
     >
       <div
-        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${rank === 1 ? "bg-amber-100 text-amber-700" : "bg-muted text-muted-foreground"}`}
+        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+          rank === 1
+            ? "bg-amber-100 text-amber-700"
+            : "bg-muted text-muted-foreground"
+        }`}
       >
         {candidate.is_winner ? (
           <Trophy size={13} className="text-amber-600" />
@@ -347,6 +366,52 @@ function CandidateRow({
   );
 }
 
+// ─── Others row ───────────────────────────────────────────────────────────────
+
+function OthersRow({
+  others,
+  maxVotes,
+}: {
+  others: CandidateResult[];
+  maxVotes: number;
+}) {
+  const totalVotes = others.reduce((s, x) => s + x.votes, 0);
+  const pct = maxVotes > 0 ? Math.round((totalVotes / maxVotes) * 100) : 0;
+
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl bg-background border border-dashed border-border">
+      <div className="w-7 h-7 rounded-full flex items-center justify-center bg-muted shrink-0">
+        <Users size={13} className="text-muted-foreground" />
+      </div>
+      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-muted text-[10px] font-bold text-muted-foreground shrink-0 border-2 border-border">
+        +{toNep(others.length)}
+      </div>
+      <div className="flex-1 min-w-0">
+        <span className="font-semibold text-sm text-muted-foreground">
+          अन्य {toNep(others.length)} उम्मेदवार
+        </span>
+        <div className="flex items-center gap-2 mt-1.5">
+          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full bg-muted-foreground/40 transition-all duration-700"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="text-[11px] text-muted-foreground w-8 text-right shrink-0">
+            {pct}%
+          </span>
+        </div>
+      </div>
+      <div className="text-right shrink-0">
+        <div className="text-base font-bold text-muted-foreground tabular-nums">
+          {toNep(totalVotes.toLocaleString())}
+        </div>
+        <div className="text-[10px] text-muted-foreground">मत</div>
+      </div>
+    </div>
+  );
+}
+
 // ─── ConstituencyCard ──────────────────────────────────────────────────────────
 
 function ConstituencyCard({ c }: { c: ConstituencyResult }) {
@@ -354,11 +419,14 @@ function ConstituencyCard({ c }: { c: ConstituencyResult }) {
   const cfg = STATUS_CFG[status];
   const maxVotes = c.candidates[0]?.votes ?? 0;
   const winner = c.candidates.find((x) => x.is_winner);
-  console.log({ c });
+  const topCandidates = c.candidates.slice(0, TOP_N);
+  const otherCandidates = c.candidates.slice(TOP_N);
 
   return (
     <div
-      className={`bg-card border rounded-2xl overflow-hidden ${cfg.pulse ? "border-amber-300 dark:border-amber-700" : "border-border"}`}
+      className={`bg-card border rounded-2xl overflow-hidden ${
+        cfg.pulse ? "border-amber-300 dark:border-amber-700" : "border-border"
+      }`}
     >
       {/* Header */}
       <div className="px-5 pt-5 pb-4 border-b border-border">
@@ -423,7 +491,7 @@ function ConstituencyCard({ c }: { c: ConstituencyResult }) {
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            {c.candidates.map((x, i) => (
+            {topCandidates.map((x, i) => (
               <CandidateRow
                 key={x.id}
                 candidate={x}
@@ -431,6 +499,9 @@ function ConstituencyCard({ c }: { c: ConstituencyResult }) {
                 maxVotes={maxVotes}
               />
             ))}
+            {otherCandidates.length > 0 && (
+              <OthersRow others={otherCandidates} maxVotes={maxVotes} />
+            )}
           </div>
         )}
       </div>
@@ -438,7 +509,7 @@ function ConstituencyCard({ c }: { c: ConstituencyResult }) {
       {/* Footer */}
       <div className="px-4 pb-4 flex flex-col gap-2">
         <Link
-          href={`/results/${c.slug}`}
+          href={`/result/${c.slug}`}
           className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
         >
           <Trophy size={13} /> विस्तृत परिणाम हेर्नुहोस्
@@ -469,7 +540,7 @@ function SkeletonCard() {
         </div>
       </div>
       <div className="p-4 space-y-2">
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
             className="flex items-center gap-3 p-3 border border-border rounded-xl"
@@ -484,6 +555,15 @@ function SkeletonCard() {
             <div className="h-5 w-14 bg-muted rounded" />
           </div>
         ))}
+        <div className="flex items-center gap-3 p-3 border border-dashed border-border rounded-xl">
+          <div className="w-7 h-7 rounded-full bg-muted shrink-0" />
+          <div className="w-10 h-10 rounded-full bg-muted shrink-0" />
+          <div className="flex-1 space-y-1.5">
+            <div className="h-3 w-24 bg-muted rounded" />
+            <div className="h-1.5 w-full bg-muted rounded-full" />
+          </div>
+          <div className="h-5 w-14 bg-muted rounded" />
+        </div>
       </div>
     </div>
   );
@@ -566,7 +646,7 @@ export default function ResultPage() {
         </Link>
       </div>
 
-      {/* Header */}
+      {/* Page header */}
       <section className="bg-card border-b border-border py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -596,7 +676,7 @@ export default function ResultPage() {
                 <RefreshCw
                   size={13}
                   className={isRefreshing ? "animate-spin" : ""}
-                />{" "}
+                />
                 रिफ्रेश
               </button>
             </div>
@@ -661,13 +741,6 @@ export default function ResultPage() {
               <p className="text-foreground font-semibold">
                 कुनै सक्रिय निर्वाचन क्षेत्र छैन
               </p>
-              {/* <p className="text-sm text-muted-foreground">
-                Directus admin मा{" "}
-                <code className="bg-muted px-1 rounded text-xs">
-                  is_result_active
-                </code>{" "}
-                सक्षम गर्नुहोस्
-              </p> */}
             </div>
           )}
 
@@ -690,7 +763,13 @@ export default function ResultPage() {
                   <div key={status} className="mb-10">
                     <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                       <div
-                        className={`w-2 h-2 rounded-full ${status === "counting" ? "bg-amber-500 animate-pulse" : status === "completed" ? "bg-green-500" : "bg-muted-foreground"}`}
+                        className={`w-2 h-2 rounded-full ${
+                          status === "counting"
+                            ? "bg-amber-500 animate-pulse"
+                            : status === "completed"
+                              ? "bg-green-500"
+                              : "bg-muted-foreground"
+                        }`}
                       />
                       {label}
                     </h2>
