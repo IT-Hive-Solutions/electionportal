@@ -15,6 +15,8 @@ import {
   BarChart2,
   AlertCircle,
   Users,
+  ChevronDown,
+  X,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -23,6 +25,8 @@ import { endpoints } from "@/core/constants/endpoints";
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 type CountingStatus = "not_started" | "counting" | "completed";
+
+type FilterOption = { id: number; name: string };
 
 type CandidateResult = {
   id: number;
@@ -168,24 +172,77 @@ type RawElectionResult = {
   } | null;
 };
 
-// ─── Data loader ───────────────────────────────────────────────────────────────
+// ─── Filter data loaders ───────────────────────────────────────────────────────
 
-async function loadResultData(): Promise<ConstituencyResult[]> {
-  // 1. Active constituencies
-  const constituencies = await proxyFetch<RawConstituency[]>("constituencies", {
-    fields:
-      "id,name,slug,code,counting_status,district.id,district.name,district.province.id,district.province.name",
-    filter: JSON.stringify({
-      counting_status: { _in: ["counting", "completed"] },
-    }),
+async function fetchProvinces(): Promise<FilterOption[]> {
+  return proxyFetch<FilterOption[]>("province", {
+    fields: "id,name",
     sort: "name",
     limit: -1,
   });
+}
+
+async function fetchDistricts(provinceId: number): Promise<FilterOption[]> {
+  return proxyFetch<FilterOption[]>("district", {
+    fields: "id,name",
+    filter: JSON.stringify({ province: { id: { _eq: provinceId } } }),
+    sort: "name",
+    limit: -1,
+  });
+}
+
+async function fetchConstituenciesForDistrict(
+  districtId: number,
+): Promise<FilterOption[]> {
+  return proxyFetch<FilterOption[]>("constituencies", {
+    fields: "id,name",
+    filter: JSON.stringify({ district: { id: { _eq: districtId } } }),
+    sort: "name",
+    limit: -1,
+  });
+}
+
+// ─── Main data loader ──────────────────────────────────────────────────────────
+
+interface LoadOpts {
+  provinceId: number | null;
+  districtId: number | null;
+  constituencyId: number | null;
+  isHotSeat: boolean; // true = no filter selected
+}
+
+async function loadResultData(opts: LoadOpts): Promise<ConstituencyResult[]> {
+  const { provinceId, districtId, constituencyId, isHotSeat } = opts;
+
+  // Build constituency filter
+  const filter: Record<string, unknown> = {};
+
+  if (constituencyId) {
+    // Specific constituency — no status restrictions
+    filter["id"] = { _eq: constituencyId };
+  } else if (districtId) {
+    // All in district — no status restrictions
+    filter["district"] = { id: { _eq: districtId } };
+  } else if (provinceId) {
+  // All in province — no status restrictions
+    filter["district"] = { province: { id: { _eq: provinceId } } };
+  }
+  // if (!constituencyId || !districtId || !provinceId) {
+  //   filter["is_hot_seat"] = { _eq: true };
+  //   filter["counting_status"] = { _in: ["counting", "completed"] };
+  // }
+  const constituencies = await proxyFetch<RawConstituency[]>("constituencies", {
+    fields:
+      "id,name,slug,code,counting_status,district.id,district.name,district.province.id,district.province.name",
+    filter: JSON.stringify(filter),
+    sort: "name",
+    limit: -1,
+  });
+
   if (!constituencies.length) return [];
 
   const ids = constituencies.map((c) => c.id);
 
-  // 2. Fetch election_result — filtered directly by constituency M2O field
   const electionResults = await proxyFetch<RawElectionResult[]>(
     "election_result",
     {
@@ -206,14 +263,12 @@ async function loadResultData(): Promise<ConstituencyResult[]> {
         "candidate.party.color_code",
         "candidate.party.symbol",
       ].join(","),
-      filter: JSON.stringify({
-        constituency: { id: { _in: ids } },
-      }),
+      filter: JSON.stringify({ constituency: { id: { _in: ids } } }),
       limit: -1,
     },
   );
 
-  // 3. Group by constituency
+  // Group by constituency
   const grouped = new Map<number, CandidateResult[]>();
   for (const r of electionResults) {
     if (!r.candidate || !r.constituency) continue;
@@ -225,7 +280,7 @@ async function loadResultData(): Promise<ConstituencyResult[]> {
       slug: r.candidate.slug,
       photo: r.candidate.photo,
       independent_candidate: r.candidate.independent_candidate,
-      is_winner: r.is_winner, // from election_result, not candidate
+      is_winner: r.is_winner,
       party: r.candidate.party,
       constituencyId: r.constituency.id,
       votes: r.votes ?? 0,
@@ -233,7 +288,6 @@ async function loadResultData(): Promise<ConstituencyResult[]> {
     });
   }
 
-  // 4. Sort by votes desc
   return constituencies.map((c) => {
     const list = (grouped.get(c.id) ?? []).sort((a, b) => b.votes - a.votes);
     return {
@@ -243,6 +297,53 @@ async function loadResultData(): Promise<ConstituencyResult[]> {
       lastUpdated: new Date().toISOString(),
     };
   });
+}
+
+// ─── FilterSelect ──────────────────────────────────────────────────────────────
+
+function FilterSelect({
+  label,
+  value,
+  options,
+  onChange,
+  disabled,
+  placeholder,
+}: {
+  label: string;
+  value: number | null;
+  options: FilterOption[];
+  onChange: (id: number | null) => void;
+  disabled?: boolean;
+  placeholder: string;
+}) {
+  return (
+    <div className="relative flex-1 min-w-[140px]">
+      <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">
+        {label}
+      </label>
+      <div className="relative">
+        <select
+          value={value ?? ""}
+          onChange={(e) =>
+            onChange(e.target.value ? Number(e.target.value) : null)
+          }
+          disabled={disabled}
+          className="w-full h-9 pl-3 pr-8 text-xs font-medium bg-background border border-border rounded-lg appearance-none text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <option value="">{placeholder}</option>
+          {options.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.name}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={13}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+        />
+      </div>
+    </div>
+  );
 }
 
 // ─── VoteBar ───────────────────────────────────────────────────────────────────
@@ -366,7 +467,7 @@ function CandidateRow({
   );
 }
 
-// ─── Others row ───────────────────────────────────────────────────────────────
+// ─── OthersRow ────────────────────────────────────────────────────────────────
 
 function OthersRow({
   others,
@@ -377,7 +478,6 @@ function OthersRow({
 }) {
   const totalVotes = others.reduce((s, x) => s + x.votes, 0);
   const pct = maxVotes > 0 ? Math.round((totalVotes / maxVotes) * 100) : 0;
-
   return (
     <div className="flex items-center gap-3 p-3 rounded-xl bg-background border border-dashed border-border">
       <div className="w-7 h-7 rounded-full flex items-center justify-center bg-muted shrink-0">
@@ -424,11 +524,8 @@ function ConstituencyCard({ c }: { c: ConstituencyResult }) {
 
   return (
     <div
-      className={`bg-card border rounded-2xl overflow-hidden ${
-        cfg.pulse ? "border-amber-300 dark:border-amber-700" : "border-border"
-      }`}
+      className={`bg-card border rounded-2xl overflow-hidden ${cfg.pulse ? "border-amber-300 dark:border-amber-700" : "border-border"}`}
     >
-      {/* Header */}
       <div className="px-5 pt-5 pb-4 border-b border-border">
         <div className="flex items-start justify-between gap-2 mb-2">
           <div>
@@ -470,7 +567,6 @@ function ConstituencyCard({ c }: { c: ConstituencyResult }) {
         )}
       </div>
 
-      {/* Body */}
       <div className="p-4">
         {status === "not_started" ? (
           <div className="flex flex-col items-center justify-center py-8 gap-2">
@@ -506,7 +602,6 @@ function ConstituencyCard({ c }: { c: ConstituencyResult }) {
         )}
       </div>
 
-      {/* Footer */}
       <div className="px-4 pb-4 flex flex-col gap-2">
         <Link
           href={`/result/${c.slug}`}
@@ -572,10 +667,26 @@ function SkeletonCard() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ResultPage() {
+  // Filter state
+  const [selectedProvince, setSelectedProvince] = useState<number | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
+  const [selectedConstituency, setSelectedConstituency] = useState<
+    number | null
+  >(null);
+
+  // Filter options
+  const [provinces, setProvinces] = useState<FilterOption[]>([]);
+  const [districts, setDistricts] = useState<FilterOption[]>([]);
+  const [constituencyOptions, setConstituencyOptions] = useState<
+    FilterOption[]
+  >([]);
+
+  // Results state
   const [constituencies, setConstituencies] = useState<ConstituencyResult[]>(
     [],
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [isFiltering, setIsFiltering] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
@@ -583,36 +694,94 @@ export default function ResultPage() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cdRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const hasFilter =
+    selectedProvince !== null ||
+    selectedDistrict !== null ||
+    selectedConstituency !== null;
   const hasActive = constituencies.some(
     (c) => c.counting_status === "counting",
   );
 
-  const load = useCallback(async (refresh = false) => {
-    refresh ? setIsRefreshing(true) : setIsLoading(true);
-    setError(null);
-    try {
-      const data = await loadResultData();
-      setConstituencies(data);
-      setLastRefresh(new Date());
-      setCountdown(REFRESH_MS / 1000);
-    } catch (e) {
-      console.error(e);
-      setError("परिणाम लोड गर्न सकिएन।");
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
+  // Load provinces once
+  useEffect(() => {
+    fetchProvinces().then(setProvinces).catch(console.error);
   }, []);
 
+  // Load districts when province changes
   useEffect(() => {
-    load();
-  }, [load]);
+    setSelectedDistrict(null);
+    setSelectedConstituency(null);
+    setConstituencyOptions([]);
+    if (selectedProvince) {
+      fetchDistricts(selectedProvince).then(setDistricts).catch(console.error);
+    } else {
+      setDistricts([]);
+    }
+  }, [selectedProvince]);
 
+  // Load constituencies when district changes
+  useEffect(() => {
+    setSelectedConstituency(null);
+    if (selectedDistrict) {
+      fetchConstituenciesForDistrict(selectedDistrict)
+        .then(setConstituencyOptions)
+        .catch(console.error);
+    } else {
+      setConstituencyOptions([]);
+    }
+  }, [selectedDistrict]);
+
+  // Main data load
+  const load = useCallback(
+    async (opts: { refresh?: boolean; filtering?: boolean }) => {
+      const { refresh = false, filtering = false } = opts;
+      if (refresh) setIsRefreshing(true);
+      else if (filtering) setIsFiltering(true);
+      else setIsLoading(true);
+      setError(null);
+      try {
+        const data = await loadResultData({
+          provinceId: selectedProvince,
+          districtId: selectedDistrict,
+          constituencyId: selectedConstituency,
+          isHotSeat: !hasFilter,
+        });
+        setConstituencies(data);
+        setLastRefresh(new Date());
+        setCountdown(REFRESH_MS / 1000);
+      } catch (e) {
+        console.error(e);
+        setError("परिणाम लोड गर्न सकिएन।");
+      } finally {
+        setIsLoading(false);
+        setIsRefreshing(false);
+        setIsFiltering(false);
+      }
+    },
+    [selectedProvince, selectedDistrict, selectedConstituency, hasFilter],
+  );
+
+  // Initial load
+  useEffect(() => {
+    load({});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reload when filters change (after initial)
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    load({ filtering: true });
+  }, [selectedProvince, selectedDistrict, selectedConstituency]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-refresh for counting constituencies
   useEffect(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (cdRef.current) clearInterval(cdRef.current);
     if (!hasActive) return;
-    timerRef.current = setInterval(() => load(true), REFRESH_MS);
+    timerRef.current = setInterval(() => load({ refresh: true }), REFRESH_MS);
     cdRef.current = setInterval(
       () => setCountdown((p) => (p <= 1 ? REFRESH_MS / 1000 : p - 1)),
       1000,
@@ -622,6 +791,12 @@ export default function ResultPage() {
       if (cdRef.current) clearInterval(cdRef.current);
     };
   }, [hasActive, load]);
+
+  const clearFilters = () => {
+    setSelectedProvince(null);
+    setSelectedDistrict(null);
+    setSelectedConstituency(null);
+  };
 
   const completedCount = constituencies.filter(
     (c) => c.counting_status === "completed",
@@ -658,7 +833,9 @@ export default function ResultPage() {
                 </h1>
               </div>
               <p className="text-muted-foreground text-sm">
-                निर्वाचन क्षेत्र अनुसार मतगणना र परिणाम
+                {hasFilter
+                  ? "फिल्टर अनुसार निर्वाचन क्षेत्रको परिणाम"
+                  : "हट सिट निर्वाचन क्षेत्रहरूको परिणाम"}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -669,19 +846,20 @@ export default function ResultPage() {
                 </div>
               )}
               <button
-                onClick={() => load(true)}
+                onClick={() => load({ refresh: true })}
                 disabled={isRefreshing || isLoading}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-border rounded-full hover:bg-muted transition-colors disabled:opacity-50"
               >
                 <RefreshCw
                   size={13}
                   className={isRefreshing ? "animate-spin" : ""}
-                />
+                />{" "}
                 रिफ्रेश
               </button>
             </div>
           </div>
 
+          {/* Status pills */}
           {!isLoading && constituencies.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-5">
               <div className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full border border-green-200 dark:border-green-800 font-semibold">
@@ -712,8 +890,55 @@ export default function ResultPage() {
       </section>
 
       {/* Content */}
-      <section className="py-10 flex-1">
+      <section className="py-8 flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Filter bar */}
+          <div className="flex flex-wrap items-end gap-3 mb-8 p-4 bg-card border border-border rounded-xl">
+            <FilterSelect
+              label="प्रदेश"
+              value={selectedProvince}
+              options={provinces}
+              onChange={setSelectedProvince}
+              placeholder="सबै प्रदेश"
+            />
+            <FilterSelect
+              label="जिल्ला"
+              value={selectedDistrict}
+              options={districts}
+              onChange={setSelectedDistrict}
+              disabled={!selectedProvince}
+              placeholder={
+                selectedProvince ? "सबै जिल्ला" : "पहिले प्रदेश छान्नुस्"
+              }
+            />
+            <FilterSelect
+              label="निर्वाचन क्षेत्र"
+              value={selectedConstituency}
+              options={constituencyOptions}
+              onChange={setSelectedConstituency}
+              disabled={!selectedDistrict}
+              placeholder={
+                selectedDistrict ? "सबै क्षेत्र" : "पहिले जिल्ला छान्नुस्"
+              }
+            />
+            <div className="flex items-center gap-2 ml-auto mt-auto">
+              {isFiltering && (
+                <div className="flex items-center gap-1.5 text-xs text-primary">
+                  <RefreshCw size={12} className="animate-spin" /> लोड हुँदैछ...
+                </div>
+              )}
+              {hasFilter && (
+                <button
+                  onClick={clearFilters}
+                  className="h-9 flex items-center gap-1.5 px-3 text-xs font-semibold text-muted-foreground border border-border rounded-lg hover:text-red-500 hover:border-red-300 transition-colors"
+                >
+                  <X size={13} /> फिल्टर हटाउनुस्
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Loading */}
           {isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -722,12 +947,13 @@ export default function ResultPage() {
             </div>
           )}
 
+          {/* Error */}
           {error && !isLoading && (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <AlertCircle size={40} className="text-red-400" />
               <p className="text-red-500 font-semibold">{error}</p>
               <button
-                onClick={() => load()}
+                onClick={() => load({})}
                 className="px-6 py-2.5 bg-primary text-primary-foreground font-bold rounded-lg text-sm"
               >
                 पुनः प्रयास
@@ -735,19 +961,33 @@ export default function ResultPage() {
             </div>
           )}
 
+          {/* Empty */}
           {!isLoading && !error && constituencies.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <Trophy size={48} className="text-muted-foreground opacity-30" />
               <p className="text-foreground font-semibold">
-                कुनै सक्रिय निर्वाचन क्षेत्र छैन
+                {hasFilter
+                  ? "यस फिल्टरमा कुनै परिणाम फेला परेन"
+                  : "कुनै सक्रिय निर्वाचन क्षेत्र छैन"}
               </p>
+              {hasFilter && (
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-primary font-semibold hover:underline"
+                >
+                  फिल्टर हटाउनुस्
+                </button>
+              )}
             </div>
           )}
 
+          {/* Results grid — with filter overlay when filtering */}
           {!isLoading && !error && constituencies.length > 0 && (
-            <>
+            <div
+              className={`relative transition-opacity duration-200 ${isFiltering ? "opacity-50 pointer-events-none" : "opacity-100"}`}
+            >
               {(
-                ["counting", "completed", "not_started"] as CountingStatus[]
+                ["counting", "completed", "not_started", null] as CountingStatus[]
               ).map((status) => {
                 const group = constituencies.filter(
                   (c) => c.counting_status === status,
@@ -763,13 +1003,7 @@ export default function ResultPage() {
                   <div key={status} className="mb-10">
                     <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                       <div
-                        className={`w-2 h-2 rounded-full ${
-                          status === "counting"
-                            ? "bg-amber-500 animate-pulse"
-                            : status === "completed"
-                              ? "bg-green-500"
-                              : "bg-muted-foreground"
-                        }`}
+                        className={`w-2 h-2 rounded-full ${status === "counting" ? "bg-amber-500 animate-pulse" : status === "completed" ? "bg-green-500" : "bg-muted-foreground"}`}
                       />
                       {label}
                     </h2>
@@ -781,9 +1015,10 @@ export default function ResultPage() {
                   </div>
                 );
               })}
-            </>
+            </div>
           )}
 
+          {/* Refreshing toast */}
           {isRefreshing && (
             <div className="fixed bottom-6 right-6 flex items-center gap-2 bg-card border border-border shadow-lg rounded-full px-4 py-2 text-xs font-semibold z-50">
               <Loader2 size={14} className="animate-spin text-primary" /> अपडेट
