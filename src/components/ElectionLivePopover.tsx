@@ -42,41 +42,97 @@ export default function ElectionDashboardOverlay({ parties, fptpTotal, prTotal, 
   // Total PR votes
   const totalVotes = parties.reduce((sum, party) => sum + party.prVotes, 0);
 
-  // Calculate seat projections
+  // ─── Realistic Projection Logic ───────────────────────────────────────────
+  //
+  // FPTP Projection:
+  //   Won seats are certain (weight = 1.0).
+  //   Leading seats are probabilistic. We apply a lead-confidence adjustment:
+  //     - Parties that hold a disproportionately large share of all "leading"
+  //       seats face higher uncertainty — some of those leads are soft and will
+  //       flip. We apply a mild diminishing-returns penalty based on leadShare.
+  //     - conversionRate (supplied by parent) reflects how complete the count
+  //       is. We clamp it to [0.60, 0.92] to stay in realistic empirical range.
+  //   After projection, FPTP totals are scaled to sum exactly to fptpTotal so
+  //   seat counts remain self-consistent.
+  //
+  // PR Seat Allocation — Sainte-Laguë Method (used in Nepal):
+  //   1. Eligibility: party must project ≥1 FPTP seat AND hold ≥3% vote share.
+  //   2. Seats are awarded iteratively. In each round the seat goes to the party
+  //      with the highest quotient  =  prVotes / (2 * seatsWonSoFar + 1).
+  //      This is the standard Sainte-Laguë divisor sequence: 1, 3, 5, 7 …
+  //   Unlike simple proportional division, Sainte-Laguë prevents large parties
+  //   from being over-represented and avoids remainder-rounding bias.
+  //
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // Clamp conversionRate to a realistic range
+  const clampedConversionRate = Math.min(0.92, Math.max(0.6, conversionRate));
+
+  // Lead confidence: parties with a large share of all leads get a mild penalty
+  // because not every lead is equally safe — some are marginal and will flip.
+  const totalLeads = parties.reduce((sum, p) => sum + p.lead, 0);
+
   const partyProjections = parties.map((party) => {
-    const predictedFptp = party.won + party.lead * conversionRate;
-    const voteShare = totalVotes > 0 ? party.prVotes / totalVotes : 0;
-    const prSeats = predictedFptp >= 1 && voteShare >= 0.03 ? voteShare * prTotal : 0;
-    const totalSeats = predictedFptp + prSeats;
+    const leadShare = totalLeads > 0 ? party.lead / totalLeads : 0;
+    // Parties holding many leads face slightly more uncertainty (soft leads)
+    const leadConfidenceFactor = clampedConversionRate * (1 - 0.08 * leadShare);
+    const predictedFptp = party.won + party.lead * leadConfidenceFactor;
 
     return {
       ...party,
       predictedFptp,
-      prSeats,
-      totalSeats,
+      prSeats: 0, // filled in Sainte-Laguë pass below
+      totalSeats: 0,
       short_name: party.shortName,
       color: party.colorCode,
     };
   });
 
-  // Normalize FPTP to match fptpTotal (165)
+  // Scale FPTP projections so they sum exactly to fptpTotal
   const totalPredictedFptp = partyProjections.reduce((sum, p) => sum + p.predictedFptp, 0);
-  const fptpScale = totalPredictedFptp > 0 ? 165 / totalPredictedFptp : 1;
+  const fptpScale = totalPredictedFptp > 0 ? fptpTotal / totalPredictedFptp : 1;
+  const scaledProjections = partyProjections.map((p) => ({
+    ...p,
+    predictedFptp: p.predictedFptp * fptpScale,
+  }));
 
-  // Normalize PR seats to match prTotal (110)
-  const totalPredictedPr = partyProjections.reduce((sum, p) => sum + p.prSeats, 0);
-  const prScale = totalPredictedPr > 0 ? 110 / totalPredictedPr : 1;
+  // ── Sainte-Laguë PR allocation ────────────────────────────────────────────
+  const prSeatsAlloc: Record<number, number> = {};
+  scaledProjections.forEach((p) => (prSeatsAlloc[p.id] = 0));
 
-  const normalizedProjections = partyProjections
+  // Eligibility: ≥1 projected FPTP seat AND ≥3% national PR vote share
+  const qualifyingParties = scaledProjections.filter((p) => {
+    const voteShare = totalVotes > 0 ? p.prVotes / totalVotes : 0;
+    return p.predictedFptp >= 1 && voteShare >= 0.03;
+  });
+
+  // Iteratively award each PR seat to the party with the highest Sainte-Laguë quotient
+  for (let seat = 0; seat < prTotal; seat++) {
+    let bestParty: (typeof qualifyingParties)[0] | null = null;
+    let bestQuotient = -1;
+
+    for (const party of qualifyingParties) {
+      const seatsWon = prSeatsAlloc[party.id];
+      const quotient = party.prVotes / (2 * seatsWon + 1);
+      if (quotient > bestQuotient) {
+        bestQuotient = quotient;
+        bestParty = party;
+      }
+    }
+
+    if (bestParty) {
+      prSeatsAlloc[bestParty.id] += 1;
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const normalizedProjections = scaledProjections
     .map((p) => {
-      const normalizedFptp = p.predictedFptp * fptpScale;
-      const normalizedPrSeats = p.prSeats * prScale;
-
+      const prSeats = prSeatsAlloc[p.id] ?? 0;
       return {
         ...p,
-        predictedFptp: normalizedFptp,
-        prSeats: normalizedPrSeats,
-        totalSeats: normalizedFptp + normalizedPrSeats,
+        prSeats,
+        totalSeats: p.predictedFptp + prSeats,
         isRuling: p.isRuling || false,
       };
     })
