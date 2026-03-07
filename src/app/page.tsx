@@ -322,6 +322,80 @@ export default function Home() {
         </div>
       </section>
       <HomeResultsSection />
+      <section className="py-10 bg-background border-t border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <BarChart3 size={18} className="text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-foreground leading-tight">समानुपातिक (PR) परिणाम</h2>
+                <p className="text-xs text-muted-foreground">दलगत मत तथा सिट विवरण</p>
+              </div>
+            </div>
+
+            <Link
+              href="/results"
+              className="flex items-center gap-1 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              सबै हेर्नुहोस् <ChevronRight size={16} />
+            </Link>
+          </div>
+
+          {/* PR Table */}
+          <div className="overflow-x-auto border border-border rounded-xl">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-muted-foreground text-xs uppercase">
+                <tr>
+                  <th className="text-left px-4 py-3">दल</th>
+                  <th className="text-right px-4 py-3">PR मत</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {partiesForPrediction
+                  .filter((p) => p.prVotes > 0)
+                  .sort((a, b) => b.prVotes - a.prVotes)
+                  .map((p) => (
+                    <tr key={p.id} className="border-t border-border">
+                      {/* Party */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full" style={{ background: p.colorCode }} />
+                          <span className="font-semibold">{p.shortName}</span>
+                        </div>
+                      </td>
+
+                      {/* Votes - Progress Bar Style */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-muted rounded-full h-6 overflow-hidden">
+                            <div
+                              className="h-full flex items-center justify-end pr-2 text-xs font-semibold text-white transition-all"
+                              style={{
+                                width: `${Math.min((p.prVotes / 100000) * 100, 100)}%`,
+                                backgroundColor: p.colorCode,
+                              }}
+                            >
+                              {p.prVotes > 5000 && p.prVotes.toLocaleString()}
+                            </div>
+                          </div>
+                          {p.prVotes <= 5000 && (
+                            <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                              {p.prVotes.toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
       <AdBanner type="in-content" />
 
       {/* ── Hot Seats ── */}
