@@ -350,13 +350,13 @@ export default function Home() {
               <thead className="bg-muted/40 text-muted-foreground text-xs uppercase">
                 <tr>
                   <th className="text-left px-4 py-3">दल</th>
-                  <th className="text-right px-4 py-3">PR मत</th>
+                  <th className="text-right px-4 py-3">समानुपातिक मत</th>
                 </tr>
               </thead>
 
               <tbody>
                 {partiesForPrediction
-                  .filter((p) => p.prVotes > 0)
+                  .filter((p) => p.prVotes > 0 && (p.prVotes / 100000) * 100 >= 3)
                   .sort((a, b) => b.prVotes - a.prVotes)
                   .map((p) => (
                     <tr key={p.id} className="border-t border-border">
@@ -379,12 +379,13 @@ export default function Home() {
                                 backgroundColor: p.colorCode,
                               }}
                             >
-                              {p.prVotes > 5000 && p.prVotes.toLocaleString()}
+                              {Math.min((p.prVotes / 100000) * 100, 100) > 20 &&
+                                toNepaliNumber(p.prVotes.toLocaleString())}
                             </div>
                           </div>
-                          {p.prVotes <= 5000 && (
+                          {Math.min((p.prVotes / 100000) * 100, 100) <= 15 && (
                             <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
-                              {p.prVotes.toLocaleString()}
+                              {toNepaliNumber(p.prVotes.toLocaleString())}
                             </span>
                           )}
                         </div>
