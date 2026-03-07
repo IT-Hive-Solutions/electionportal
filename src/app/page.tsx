@@ -274,12 +274,6 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <ElectionDashboardOverlay
-        parties={partiesForPrediction || []}
-        fptpTotal={165}
-        prTotal={110}
-        conversionRate={0.88}
-      />
       {/* ── Hero ── */}
       <section className="bg-gradient-to-br from-primary via-secondary to-primary py-14 md:py-20 text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -293,7 +287,14 @@ export default function Home() {
           <p className="text-sm opacity-70">Nepal Election Portal - Your trusted source for election information</p>
         </div>
       </section>
-
+      <section className="mb-5 -mt-8 relative z-10 pb-8">
+        <ElectionDashboardOverlay
+          parties={partiesForPrediction || []}
+          fptpTotal={165}
+          prTotal={110}
+          conversionRate={0.88}
+        />
+      </section>
       {/* ── Stat Cards ── */}
       <section className="-mt-8 relative z-10 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
