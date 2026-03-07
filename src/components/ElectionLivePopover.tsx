@@ -59,16 +59,28 @@ export default function ElectionDashboardOverlay({ parties, fptpTotal, prTotal, 
     };
   });
 
-  // Normalize FPTP to match fptpTotal
+  // Normalize FPTP to match fptpTotal (165)
   const totalPredictedFptp = partyProjections.reduce((sum, p) => sum + p.predictedFptp, 0);
-  const fptpScale = totalPredictedFptp > 0 ? fptpTotal / totalPredictedFptp : 1;
+  const fptpScale = totalPredictedFptp > 0 ? 165 / totalPredictedFptp : 1;
 
-  const normalizedProjections = partyProjections.map((p) => ({
-    ...p,
-    predictedFptp: p.predictedFptp * fptpScale,
-    totalSeats: p.predictedFptp * fptpScale + p.prSeats,
-    isRuling: p.isRuling || false,
-  }));
+  // Normalize PR seats to match prTotal (110)
+  const totalPredictedPr = partyProjections.reduce((sum, p) => sum + p.prSeats, 0);
+  const prScale = totalPredictedPr > 0 ? 110 / totalPredictedPr : 1;
+
+  const normalizedProjections = partyProjections
+    .map((p) => {
+      const normalizedFptp = p.predictedFptp * fptpScale;
+      const normalizedPrSeats = p.prSeats * prScale;
+
+      return {
+        ...p,
+        predictedFptp: normalizedFptp,
+        prSeats: normalizedPrSeats,
+        totalSeats: normalizedFptp + normalizedPrSeats,
+        isRuling: p.isRuling || false,
+      };
+    })
+    .filter((p) => p.totalSeats >= 1);
 
   // Sort by total seats
   const sortedProjections = [...normalizedProjections].sort((a, b) => b.totalSeats - a.totalSeats);
