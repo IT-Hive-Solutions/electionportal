@@ -358,40 +358,48 @@ export default function Home() {
                 {partiesForPrediction
                   .filter((p) => p.prVotes > 0 && (p.prVotes / 100000) * 100 >= 3)
                   .sort((a, b) => b.prVotes - a.prVotes)
-                  .map((p) => (
-                    <tr key={p.id} className="border-t border-border">
-                      {/* Party */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full" style={{ background: p.colorCode }} />
-                          <span className="font-semibold">{p.shortName}</span>
-                        </div>
-                      </td>
+                  .map((p) => {
+                    const maxVotes = Math.max(
+                      ...partiesForPrediction
+                        .filter((party) => party.prVotes > 0 && (party.prVotes / 100000) * 100 >= 3)
+                        .map((party) => party.prVotes),
+                    );
+                    const barWidth = (p.prVotes / maxVotes) * 100;
 
-                      {/* Votes - Progress Bar Style */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-muted rounded-full h-6 overflow-hidden">
-                            <div
-                              className="h-full flex items-center justify-end pr-2 text-xs font-semibold text-white transition-all"
-                              style={{
-                                width: `${Math.min((p.prVotes / 100000) * 100, 100)}%`,
-                                backgroundColor: p.colorCode,
-                              }}
-                            >
-                              {Math.min((p.prVotes / 100000) * 100, 100) > 20 &&
-                                toNepaliNumber(p.prVotes.toLocaleString())}
-                            </div>
+                    return (
+                      <tr key={p.id} className="border-t border-border">
+                        {/* Party */}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <span className="w-3 h-3 rounded-full" style={{ background: p.colorCode }} />
+                            <span className="font-semibold">{p.shortName}</span>
                           </div>
-                          {Math.min((p.prVotes / 100000) * 100, 100) <= 15 && (
-                            <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
-                              {toNepaliNumber(p.prVotes.toLocaleString())}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+
+                        {/* Votes - Progress Bar Style */}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 bg-muted rounded-full h-6 overflow-hidden">
+                              <div
+                                className="h-full flex items-center justify-end pr-2 text-xs font-semibold text-white transition-all"
+                                style={{
+                                  width: `${barWidth}%`,
+                                  backgroundColor: p.colorCode,
+                                }}
+                              >
+                                {barWidth > 20 && toNepaliNumber(p.prVotes.toLocaleString())}
+                              </div>
+                            </div>
+                            {barWidth <= 15 && (
+                              <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                                {toNepaliNumber(p.prVotes.toLocaleString())}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           </div>
