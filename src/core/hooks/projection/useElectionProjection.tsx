@@ -15,12 +15,17 @@ export type PartyData = {
 
 export function usePartyResults() {
   const [parties, setParties] = useState<PartyData[]>([]);
+  const [totalPrVotes, setTotalPrVotes] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        const predictionSettings = await fetch('/api/proxy/election_prediction_settings?fields=total_pr_votes');
+        const finalJsonData = await predictionSettings.json();
+        setTotalPrVotes(finalJsonData.data.total_pr_votes);
+
         // FPTP results from Directus
         const fptpRes = await fetch(
           '/api/proxy/fptp_results?fields=party.id,party.name,party.short_name,party.color_code,party.is_ruling, lead,won',
@@ -69,5 +74,5 @@ export function usePartyResults() {
     fetchData();
   }, []);
 
-  return { parties, isLoading, error };
+  return { parties, totalPrVotes, isLoading, error };
 }

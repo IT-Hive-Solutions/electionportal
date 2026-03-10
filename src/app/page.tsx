@@ -164,7 +164,7 @@ export default function Home() {
   const [selectedGender, setSelectedGender] = useState('');
   const [selectedParty, setSelectedParty] = useState('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const { parties: partiesForPrediction } = usePartyResults();
+  const { parties: partiesForPrediction, totalPrVotes } = usePartyResults();
 
   // ── Directus election_summary ──
   const { data: summary, isLoading } = useElectionSummary();
@@ -290,6 +290,7 @@ export default function Home() {
       <section className="mb-5 -mt-8 relative z-10 pb-8">
         <ElectionDashboardOverlay
           parties={partiesForPrediction || []}
+          totalPrVotes={totalPrVotes}
           fptpTotal={165}
           prTotal={110}
           conversionRate={0.88}
@@ -356,12 +357,12 @@ export default function Home() {
 
               <tbody>
                 {partiesForPrediction
-                  .filter((p) => p.prVotes > 0 && (p.prVotes / 100000) * 100 >= 3)
+                  .filter((p) => p.prVotes > 0 && (p.prVotes / totalPrVotes) * 100 >= 3)
                   .sort((a, b) => b.prVotes - a.prVotes)
                   .map((p) => {
                     const maxVotes = Math.max(
                       ...partiesForPrediction
-                        .filter((party) => party.prVotes > 0 && (party.prVotes / 100000) * 100 >= 3)
+                        .filter((party) => party.prVotes > 0 && (party.prVotes / totalPrVotes) * 100 >= 3)
                         .map((party) => party.prVotes),
                     );
                     const barWidth = (p.prVotes / maxVotes) * 100;

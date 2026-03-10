@@ -30,18 +30,19 @@ type Props = {
   fptpTotal: number;
   prTotal: number;
   conversionRate: number;
+  totalPrVotes: number;
 };
 
 const MAJORITY_SEAT = 138;
 const TWO_THIRD_MAJORITY = 184;
 const TOTAL_SEATS = 275;
 
-export default function ElectionDashboardOverlay({ parties, fptpTotal, prTotal, conversionRate }: Props) {
+export default function ElectionDashboardOverlay({ parties, fptpTotal, prTotal, conversionRate, totalPrVotes }: Props) {
   const [isOpen, setIsOpen] = useState(true);
 
   // Total PR votes
-  const totalVotes = parties.reduce((sum, party) => sum + party.prVotes, 0);
-
+  //   const totalVotes = parties.reduce((sum, party) => sum + party.prVotes, 0);
+  const totalVotes = totalPrVotes;
   // ─── Realistic Projection Logic ───────────────────────────────────────────
   //
   // FPTP Projection:

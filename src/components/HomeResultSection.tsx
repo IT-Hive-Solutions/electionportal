@@ -57,14 +57,27 @@ type RawElectionResult = {
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
 const NEPALI_DIGITS: Record<string, string> = {
-  '0': '०', '1': '१', '2': '२', '3': '३', '4': '४',
-  '5': '५', '6': '६', '7': '७', '8': '८', '9': '९',
+  '0': '०',
+  '1': '१',
+  '2': '२',
+  '3': '३',
+  '4': '४',
+  '5': '५',
+  '6': '६',
+  '7': '७',
+  '8': '८',
+  '9': '९',
 };
 function toNep(n: number | string) {
   return String(n).replace(/[0-9]/g, (d) => NEPALI_DIGITS[d] ?? d);
 }
 function getInitials(name: string) {
-  return name.trim().split(' ').slice(0, 2).map((w) => w[0]).join('.');
+  return name
+    .trim()
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('.');
 }
 
 // ─── Proxy fetcher ─────────────────────────────────────────────────────────────
@@ -72,8 +85,7 @@ function getInitials(name: string) {
 async function proxyFetch<T>(collection: string, params: Record<string, unknown>): Promise<T> {
   const url = new URL(`/api/proxy/${collection}`, window.location.origin);
   for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== null)
-      url.searchParams.set(k, typeof v === 'object' ? JSON.stringify(v) : String(v));
+    if (v !== undefined && v !== null) url.searchParams.set(k, typeof v === 'object' ? JSON.stringify(v) : String(v));
   }
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -100,7 +112,7 @@ async function loadConstituenciesForFilter(districtId: number | null): Promise<F
   const params: Record<string, unknown> = {
     fields: 'id,name',
     filter: JSON.stringify({
-    //   is_result_active: { _eq: true },
+      //   is_result_active: { _eq: true },
       ...(districtId ? { district: { id: { _eq: districtId } } } : {}),
     }),
     sort: 'name',
@@ -146,7 +158,10 @@ async function loadResults(opts: {
 
   const electionResults = await proxyFetch<RawElectionResult[]>('election_result', {
     fields: [
-      'id', 'votes', 'is_winner', 'rank',
+      'id',
+      'votes',
+      'is_winner',
+      'rank',
       'constituency.id',
       'candidate.id',
       'candidate.full_name',
@@ -180,9 +195,7 @@ async function loadResults(opts: {
   }
 
   return constituencies.map((c) => {
-    const candidates = (grouped.get(c.id) ?? [])
-      .sort((a, b) => b.votes - a.votes)
-      .slice(0, 4);
+    const candidates = (grouped.get(c.id) ?? []).sort((a, b) => b.votes - a.votes).slice(0, 4);
     return {
       ...c,
       candidates,
@@ -222,10 +235,15 @@ function FilterSelect({
         >
           <option value="">{placeholder}</option>
           {options.map((o) => (
-            <option key={o.id} value={o.id}>{o.name}</option>
+            <option key={o.id} value={o.id}>
+              {o.name}
+            </option>
           ))}
         </select>
-        <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+        <ChevronDown
+          size={13}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+        />
       </div>
     </div>
   );
@@ -318,11 +336,14 @@ function ConstituencyResultCard({ c }: { c: HomeConstituencyResult }) {
               const pct = maxVotes > 0 ? Math.round((cand.votes / maxVotes) * 100) : 0;
               return (
                 <div key={cand.id} className="flex items-center gap-2">
-                  <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${cand.is_winner ? 'bg-amber-100 dark:bg-amber-900/40' : 'bg-muted'}`}>
-                    {cand.is_winner
-                      ? <Trophy size={10} className="text-amber-500" />
-                      : <span className="text-[9px] font-bold text-muted-foreground">{toNep(idx + 1)}</span>
-                    }
+                  <div
+                    className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${cand.is_winner ? 'bg-amber-100 dark:bg-amber-900/40' : 'bg-muted'}`}
+                  >
+                    {cand.is_winner ? (
+                      <Trophy size={10} className="text-amber-500" />
+                    ) : (
+                      <span className="text-[9px] font-bold text-muted-foreground">{toNep(idx + 1)}</span>
+                    )}
                   </div>
                   <div
                     className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 border"
@@ -412,31 +433,36 @@ export default function HomeResultsSection() {
   }, [selectedDistrict]);
 
   // Fetch results whenever filters change
-  const fetchResults = useCallback(async (showSpinner = false) => {
-    showSpinner ? setIsFiltering(true) : setIsLoading(true);
-    try {
-      const data = await loadResults({
-        provinceId: selectedProvince,
-        districtId: selectedDistrict,
-        constituencyId: selectedConstituency,
-        hotSeatOnly: !hasFilter,
-      });
-      setResults(data);
-    } catch (e) {
-      console.error('[HomeResultsSection]', e);
-    } finally {
-      setIsLoading(false);
-      setIsFiltering(false);
-    }
-  }, [selectedProvince, selectedDistrict, selectedConstituency, hasFilter]);
+  const fetchResults = useCallback(
+    async (showSpinner = false) => {
+      showSpinner ? setIsFiltering(true) : setIsLoading(true);
+      try {
+        const data = await loadResults({
+          provinceId: selectedProvince,
+          districtId: selectedDistrict,
+          constituencyId: selectedConstituency,
+          hotSeatOnly: !hasFilter,
+        });
+        setResults(data);
+      } catch (e) {
+        console.error('[HomeResultsSection]', e);
+      } finally {
+        setIsLoading(false);
+        setIsFiltering(false);
+      }
+    },
+    [selectedProvince, selectedDistrict, selectedConstituency, hasFilter],
+  );
 
   useEffect(() => {
     fetchResults(isLoading ? false : true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProvince, selectedDistrict, selectedConstituency]);
 
   // Initial load
-  useEffect(() => { fetchResults(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    fetchResults();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const clearFilters = () => {
     setSelectedProvince(null);
@@ -449,7 +475,6 @@ export default function HomeResultsSection() {
   return (
     <section className="py-10 bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
         {/* Section header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2.5">
@@ -516,28 +541,24 @@ export default function HomeResultsSection() {
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {isLoading
-            ? [1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} />)
-            : results.length === 0
-            ? (
-              <div className="col-span-full flex flex-col items-center justify-center py-12 gap-2">
-                <Trophy size={36} className="text-muted-foreground opacity-20" />
-                <p className="text-sm text-muted-foreground font-medium">
-                  {hasFilter
-                    ? 'यस फिल्टरमा कुनै सक्रिय परिणाम छैन'
-                    : 'अहिले कुनै सक्रिय परिणाम उपलब्ध छैन'}
-                </p>
-                {hasFilter && (
-                  <button onClick={clearFilters} className="text-xs text-primary font-semibold mt-1 hover:underline">
-                    फिल्टर हटाउनुस्
-                  </button>
-                )}
-              </div>
-            )
-            : results.map((c) => <ConstituencyResultCard key={c.id} c={c} />)
-          }
+          {isLoading ? (
+            [1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} />)
+          ) : results.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 gap-2">
+              <Trophy size={36} className="text-muted-foreground opacity-20" />
+              <p className="text-sm text-muted-foreground font-medium">
+                {hasFilter ? 'यस फिल्टरमा कुनै सक्रिय परिणाम छैन' : 'अहिले कुनै सक्रिय परिणाम उपलब्ध छैन'}
+              </p>
+              {hasFilter && (
+                <button onClick={clearFilters} className="text-xs text-primary font-semibold mt-1 hover:underline">
+                  फिल्टर हटाउनुस्
+                </button>
+              )}
+            </div>
+          ) : (
+            results.map((c) => <ConstituencyResultCard key={c.id} c={c} />)
+          )}
         </div>
-
       </div>
     </section>
   );
